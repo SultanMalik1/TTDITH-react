@@ -1,5 +1,6 @@
 // src/pages/HomePage.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import EventSection from "../components/EventSection";
 import Loader from "../components/Loader";
@@ -21,6 +22,7 @@ function groupEventsByCategory(events) {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,6 +41,14 @@ export default function HomePage() {
 
   const groupedEvents = groupEventsByCategory(events);
 
+  const handleCategoryClick = (category) => {
+    navigate(`/categories/${category}/1`);
+  };
+
+  const handleAllEventsClick = () => {
+    navigate('/events/1');
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -48,6 +58,7 @@ export default function HomePage() {
         title="Upcoming Events"
         events={events.slice(0, 3)}
         buttonLabel="All events →"
+        onButtonClick={handleAllEventsClick}
       />
       {CATEGORIES.map((category) =>
         groupedEvents[category]?.length ? (
@@ -56,6 +67,7 @@ export default function HomePage() {
             title={`${category} Events`}
             events={groupedEvents[category]}
             buttonLabel={`All ${category.toLowerCase()} events →`}
+            onButtonClick={() => handleCategoryClick(category)}
           />
         ) : null
       )}
