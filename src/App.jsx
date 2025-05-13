@@ -4,10 +4,12 @@ import HomePage from "./pages/HomePage";
 import EventDetailPage from "./pages/EventDetailPage";
 import CategoryPage from "./pages/CategoryPage";
 import AllEventsPage from "./pages/AllEventsPage";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <Router>
+      <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/event/:slug" element={<EventDetailPage />} />

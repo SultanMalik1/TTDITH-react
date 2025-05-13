@@ -53,7 +53,6 @@ export default function HomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">Upcoming Events</h1>
       <EventSection
         title="Upcoming Events"
         events={events.slice(0, 3)}
