@@ -16,18 +16,21 @@ export default function AllEventsPage() {
   useEffect(() => {
     async function fetchEvents() {
       setLoading(true);
+      const now = new Date().toISOString();
       const start = (parseInt(page) - 1) * EVENTS_PER_PAGE;
       const end = start + EVENTS_PER_PAGE - 1;
 
       // Fetch total count
       const { count } = await supabase
         .from("events")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })
+        .gt("start_time", now);
 
       // Fetch paginated events
       const { data, error } = await supabase
         .from("events")
         .select("*")
+        .gt("start_time", now)
         .order("start_time", { ascending: true })
         .range(start, end);
 

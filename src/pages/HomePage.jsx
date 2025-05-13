@@ -29,9 +29,11 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchEvents() {
       setLoading(true);
+      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("events")
         .select("*")
+        .gt("start_time", now)
         .order("start_time", { ascending: true });
       if (!error) setEvents(data);
       setLoading(false);
