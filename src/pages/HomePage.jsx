@@ -65,7 +65,7 @@ export default function HomePage() {
           <EventSection
             key={category}
             title={`${category} Events`}
-            events={groupedEvents[category]}
+            events={groupedEvents[category].slice(0, 3)}
             buttonLabel={`All ${category.toLowerCase()} events →`}
             onButtonClick={() => handleCategoryClick(category)}
           />

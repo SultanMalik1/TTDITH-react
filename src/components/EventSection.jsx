@@ -1,6 +1,6 @@
 // src/components/EventSection.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import EventCard from "./EventCard";
 
 export default function EventSection({ 
   title, 
@@ -26,28 +26,9 @@ export default function EventSection({
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {events.map((event) => (
-          <Link
-            key={event.id}
-            to={`/event/${event.slug}`}
-            className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-          >
-            {event.image_url && (
-              <img
-                src={event.image_url}
-                alt={event.title}
-                className="w-full h-48 object-cover"
-              />
-            )}
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
-              <p className="text-gray-600 text-sm mb-2">
-                {new Date(event.start_time).toLocaleDateString()}
-              </p>
-              <p className="text-gray-700">{event.description}</p>
-            </div>
-          </Link>
+          <EventCard key={event.id} event={event} />
         ))}
       </div>
 
