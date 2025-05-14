@@ -68,8 +68,21 @@ export default function HomePage() {
 
   if (loading) return <Loader />;
 
+  // Filter featured events (adjust category as needed)
+  const featuredEvents = events.filter(e => e.category === 'Featured');
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
+      {/* Featured Events Section */}
+      {featuredEvents.length > 0 && (
+        <EventSection
+          title="Featured Events"
+          events={featuredEvents.slice(0, 3)}
+          buttonLabel="View all featured events"
+          onButtonClick={() => navigate('/featured')}
+        />
+      )}
+
       <div className="flex items-center gap-4 mb-8">
         <div className="flex items-center gap-2">
           <label className="font-medium">Select Date:</label>
