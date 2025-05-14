@@ -14,7 +14,7 @@ export default function EventSection({
 }) {
   return (
     <div className="mb-12">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <h2 className="text-2xl font-semibold">{title}</h2>
         {buttonLabel && (
           <button
