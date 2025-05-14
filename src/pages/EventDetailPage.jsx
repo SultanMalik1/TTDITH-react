@@ -33,8 +33,16 @@ export default function EventDetailPage() {
         {new Date(event.start_time).toLocaleString("en-US", { timeZone: "America/New_York" })}
       </div>
       <div className="flex flex-wrap gap-2 mb-4">
-        {event.town && <span className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-xs">{event.town}</span>}
-        {event.category && <span className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-xs">{event.category}</span>}
+        {event.town && (
+          <span className="flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs shadow-sm font-medium">
+            <span className="mr-1">📍</span>{event.town}
+          </span>
+        )}
+        {event.category && (
+          <span className="flex items-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs shadow-sm font-medium">
+            <span className="mr-1">🏷️</span>{event.category}
+          </span>
+        )}
         {event.url && (
           <a
             href={event.url}
