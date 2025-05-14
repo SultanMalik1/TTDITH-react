@@ -92,7 +92,7 @@ export default function HomePage() {
       <EventSection
         title="Upcoming Events"
         events={events.slice(0, 3)}
-        buttonLabel="All events →"
+        buttonLabel="All events "
         onButtonClick={handleAllEventsClick}
       />
       {CATEGORIES.map((category) =>
@@ -101,7 +101,7 @@ export default function HomePage() {
             key={category}
             title={`${category} Events`}
             events={groupedEvents[category].slice(0, 3)}
-            buttonLabel={`All ${category.toLowerCase()} events →`}
+            buttonLabel={`All ${category.toLowerCase()} events`}
             onButtonClick={() => handleCategoryClick(category)}
           />
         ) : null

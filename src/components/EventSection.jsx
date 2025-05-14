@@ -19,9 +19,10 @@ export default function EventSection({
         {buttonLabel && (
           <button
             onClick={onButtonClick}
-            className="text-blue-600 hover:text-blue-800 font-medium"
+            className="bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition-colors flex items-center gap-2 w-full sm:w-auto text-center focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
           >
             {buttonLabel}
+            <span aria-hidden="true">→</span>
           </button>
         )}
       </div>
