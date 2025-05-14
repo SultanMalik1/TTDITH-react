@@ -15,7 +15,12 @@ export default function Navbar() {
       <div className="flex justify-between items-center py-4 px-6">
         <h1 className="text-2xl font-bold mx-auto">Things to Do in the Hamptons</h1>
         <div className="flex gap-3 items-center absolute right-6 top-4">
-          <button className="border border-black px-4 py-2 rounded hover:bg-gray-100 transition">List a Thing</button>
+          <Link 
+            to="/list-event" 
+            className="border border-black px-4 py-2 rounded hover:bg-gray-100 transition"
+          >
+            List a Thing
+          </Link>
           <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition font-semibold">Become a Sponsor</button>
         </div>
       </div>
