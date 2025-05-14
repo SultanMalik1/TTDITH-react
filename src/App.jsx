@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
+import ContactPage from "./pages/ContactPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import CategoryPage from "./pages/CategoryPage";
 import AllEventsPage from "./pages/AllEventsPage";
@@ -17,6 +18,7 @@ function App() {
         <Route path="/categories/:category" element={<CategoryPage />} />
         <Route path="/events/:page" element={<AllEventsPage />} />
         <Route path="/events" element={<AllEventsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </Router>
   );
