@@ -5,6 +5,7 @@ import ContactPage from "./pages/ContactPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import CategoryPage from "./pages/CategoryPage";
 import AllEventsPage from "./pages/AllEventsPage";
+import DateFilteredEventsPage from "./pages/DateFilteredEventsPage";
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -18,6 +19,8 @@ function App() {
         <Route path="/categories/:category" element={<CategoryPage />} />
         <Route path="/events/:page" element={<AllEventsPage />} />
         <Route path="/events" element={<AllEventsPage />} />
+        <Route path="/events/date/:date/:page" element={<DateFilteredEventsPage />} />
+        <Route path="/events/date/:date" element={<DateFilteredEventsPage />} />
         <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </Router>
