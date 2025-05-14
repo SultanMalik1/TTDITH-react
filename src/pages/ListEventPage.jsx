@@ -16,6 +16,14 @@ const ListEventPage = () => {
       
       form.reset();
       setShowThankYou(true);
+      // Scroll to thank you message
+      setTimeout(() => {
+        const thankYouElement = document.getElementById('thank-you-message');
+        if (thankYouElement) {
+          thankYouElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      // Hide thank you message after 5 seconds
       setTimeout(() => {
         setShowThankYou(false);
       }, 5000);
@@ -46,7 +54,7 @@ const ListEventPage = () => {
             <div className="space-y-4">
               <div className="border-b border-gray-100 pb-4">
                 <h4 className="text-xl font-semibold text-gray-900">Main Featured Tab</h4>
-                <p className="text-3xl font-bold text-indigo-600">$75<span className="text-lg">/day</span></p>
+                <p className="text-3xl font-bold text-blue-600">$75<span className="text-lg">/day</span></p>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center">
                     <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +84,7 @@ const ListEventPage = () => {
               </div>
               <div>
                 <h4 className="text-xl font-semibold text-gray-900">Sub Featured Tab</h4>
-                <p className="text-3xl font-bold text-indigo-600">$40<span className="text-lg">/day</span></p>
+                <p className="text-3xl font-bold text-blue-600">$40<span className="text-lg">/day</span></p>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center">
                     <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,15 +149,13 @@ const ListEventPage = () => {
             <input type="hidden" name="recipient" value="santiagosaldivar19@gmail.com" />
             <input type="hidden" name="subject" value="New Event Listing Request" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Promotion Type
-                </label>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Promotion Type</label>
                 <select
                   name="promotion-type"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Promotion Type</option>
                   <option value="main-featured">Main Featured Tab ($75/day)</option>
@@ -158,132 +164,110 @@ const ListEventPage = () => {
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Event Title
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Event Title</label>
                 <input
                   type="text"
                   name="event-title"
                   required
                   minLength="2"
                   maxLength="100"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Event URL
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Event URL</label>
                 <input
                   type="url"
                   name="event-url"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Event Image URL
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Event Image URL</label>
                 <input
                   type="url"
                   name="image-url"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Start Time
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Start Time</label>
                 <input
                   type="datetime-local"
                   name="start-time"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  End Time
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">End Time</label>
                 <input
                   type="datetime-local"
                   name="end-time"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Town
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Town</label>
                 <input
                   type="text"
                   name="town"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Cost
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Cost</label>
                 <input
                   type="text"
                   name="cost"
                   required
                   placeholder="e.g., Free, $20, $50-100"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Business/Venue Name
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Business/Venue Name</label>
                 <input
                   type="text"
                   name="venue-name"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Address
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Address</label>
                 <input
                   type="text"
                   name="address"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Registration URL
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Registration URL</label>
                 <input
                   type="url"
                   name="registration-url"
                   placeholder="e.g., Eventbrite link"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Contact Name
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Contact Name</label>
                 <input
                   type="text"
                   name="contact-name"
@@ -291,53 +275,47 @@ const ListEventPage = () => {
                   minLength="2"
                   maxLength="100"
                   pattern="[A-Za-z\s\-']+"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Email
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Email</label>
                 <input
                   type="email"
                   name="email"
                   required
                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Phone
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">Phone</label>
                 <input
                   type="tel"
                   name="phone"
                   required
                   pattern="[0-9+\-()\s]{10,20}"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Event Description
-              </label>
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-start">
+              <label className="font-medium text-gray-700">Event Description</label>
               <textarea
                 name="event-description"
                 required
                 rows="4"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               ></textarea>
             </div>
 
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md"
               >
                 Submit Event
               </button>
@@ -345,11 +323,39 @@ const ListEventPage = () => {
           </form>
 
           {showThankYou && (
-            <div className="mt-8 p-4 bg-green-50 text-green-800 rounded-lg text-center border border-green-200">
-              <h3 className="text-xl font-bold mb-2">Thank You!</h3>
-              <p>We've received your event listing request and will get back to you shortly.</p>
+            <div 
+              id="thank-you-message"
+              className="mt-8 p-6 bg-green-50 text-green-800 rounded-lg text-center border border-green-200 transform transition-all duration-500 ease-in-out animate-fade-in"
+              style={{
+                animation: 'fadeIn 0.5s ease-in-out',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+              }}
+            >
+              <div className="flex items-center justify-center mb-3">
+                <svg className="w-8 h-8 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <h3 className="text-xl font-bold">Thank You!</h3>
+              </div>
+              <p className="text-green-700">We've received your event listing request and will get back to you shortly.</p>
             </div>
           )}
+
+          <style jsx>{`
+            @keyframes fadeIn {
+              from {
+                opacity: 0;
+                transform: translateY(-10px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            .animate-fade-in {
+              animation: fadeIn 0.5s ease-in-out;
+            }
+          `}</style>
         </div>
       </div>
     </div>
