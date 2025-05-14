@@ -12,6 +12,8 @@ import SponserUsPage from "./pages/SponserUsPage";
 import SponsorsPage from "./sponsors/pages/SponsorsPage";
 import SponsorDetailPage from "./sponsors/pages/SponsorDetailPage";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import FeaturedEventsPage from "./pages/FeaturedEventsPage";
 
 function App() {
   return (
@@ -32,7 +34,9 @@ function App() {
         <Route path="/sponsor" element={<SponserUsPage />} />
         <Route path="/sponsors" element={<SponsorsPage />} />
         <Route path="/sponsors/:sponsorId" element={<SponsorDetailPage />} />
+        <Route path="/featured" element={<FeaturedEventsPage />} />
       </Routes>
+      <Footer />
     </Router>
   );
 }
