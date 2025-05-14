@@ -5,6 +5,8 @@ import EventSection from "../components/EventSection";
 import Loader from "../components/Loader";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import sponsors from '../sponsors/data/sponsors.json';
+import SponsorCard from '../sponsors/components/SponsorCard';
 
 const CATEGORIES = [
   "Nature", "Government", "Arts", "Music", "Restaurant",
@@ -60,6 +62,10 @@ export default function HomePage() {
     }
   };
 
+  const handleViewAllSponsors = () => {
+    navigate('/sponsors');
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -100,6 +106,24 @@ export default function HomePage() {
           />
         ) : null
       )}
+      {/* Oceanside Sponsors Section */}
+      <div className="mt-16">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">Our Sponsors</h2>
+          <button
+            onClick={handleViewAllSponsors}
+            className="bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition-colors flex items-center gap-2"
+          >
+            View all
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {sponsors.filter(s => s.category === 'oceanside').map(sponsor => (
+            <SponsorCard key={sponsor.id} sponsor={sponsor} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
