@@ -73,6 +73,13 @@ export default function Navbar() {
               >
                 About Us
               </Link>
+              <Link
+                to="/sponsors"
+                className="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition text-gray-700"
+                onClick={() => setShowAbout(false)}
+              >
+                Sponsors
+              </Link>
             </div>
           )}
         </div>

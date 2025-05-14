@@ -9,6 +9,8 @@ import DateFilteredEventsPage from "./pages/DateFilteredEventsPage";
 import AboutPage from "./pages/AboutPage";
 import ListEventPage from "./pages/ListEventPage";
 import SponserUsPage from "./pages/SponserUsPage";
+import SponsorsPage from "./sponsors/pages/SponsorsPage";
+import SponsorDetailPage from "./sponsors/pages/SponsorDetailPage";
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/list-event" element={<ListEventPage />} />
         <Route path="/sponsor" element={<SponserUsPage />} />
+        <Route path="/sponsors" element={<SponsorsPage />} />
+        <Route path="/sponsors/:sponsorId" element={<SponsorDetailPage />} />
       </Routes>
     </Router>
   );
