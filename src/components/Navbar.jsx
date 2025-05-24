@@ -1,15 +1,24 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react"
+import { Link } from "react-router-dom"
 
 const CATEGORIES = [
-  "Nature", "Government", "Arts", "Music", "Restaurant",
-  "Community", "Film", "Library", "Health", "Nightlife", "Spiritual"
-];
+  "Nature",
+  "Government",
+  "Arts",
+  "Music",
+  "Restaurant",
+  "Community",
+  "Film",
+  "Library",
+  "Health",
+  "Nightlife",
+  "Spiritual",
+]
 
 export default function Navbar() {
-  const [showCategories, setShowCategories] = useState(false);
-  const [showAbout, setShowAbout] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showCategories, setShowCategories] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
     <nav className="border-b border-gray-200 w-full bg-white">
@@ -37,20 +46,20 @@ export default function Navbar() {
         </button>
 
         {/* Logo/Title - centered */}
-        <h1 className="text-xl lg:text-2xl font-bold text-center flex-1 text-gray-900 ml-8">
+        <h1 className="text-xl lg:text-2xl font-bold text-center flex-1 text-gray-900 mx-auto pl-20">
           Things to Do in the Hamptons
         </h1>
 
         {/* Desktop navigation buttons */}
         <div className="hidden lg:flex gap-3 items-center">
-          <Link 
-            to="/list-event" 
+          <Link
+            to="/list-event"
             className="border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition text-gray-700"
           >
             List a Thing
           </Link>
-          <Link 
-            to="/sponsor" 
+          <Link
+            to="/sponsor"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition font-semibold"
           >
             Become a Sponsor
@@ -59,17 +68,21 @@ export default function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      <div className={`lg:hidden ${isMobileMenuOpen ? 'block' : 'hidden'} bg-white border-t border-gray-200`}>
+      <div
+        className={`lg:hidden ${
+          isMobileMenuOpen ? "block" : "hidden"
+        } bg-white border-t border-gray-200`}
+      >
         <div className="px-4 py-2 space-y-2">
-          <Link 
-            to="/list-event" 
+          <Link
+            to="/list-event"
             className="block border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition text-gray-700 text-center"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             List a Thing
           </Link>
-          <Link 
-            to="/sponsor" 
+          <Link
+            to="/sponsor"
             className="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition font-semibold text-center"
             onClick={() => setIsMobileMenuOpen(false)}
           >
@@ -77,12 +90,42 @@ export default function Navbar() {
           </Link>
         </div>
         <div className="px-4 py-2 space-y-2">
-          <Link to="/" className="block text-gray-700 hover:text-blue-600 transition" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-          <Link to="/featured" className="block text-gray-700 hover:text-blue-600 transition" onClick={() => setIsMobileMenuOpen(false)}>Featured Events</Link>
-          <Link to="/events/1" className="block text-gray-700 hover:text-blue-600 transition" onClick={() => setIsMobileMenuOpen(false)}>All Events</Link>
-          <Link to="/blog" className="block text-gray-700 hover:text-blue-600 transition" onClick={() => setIsMobileMenuOpen(false)}>Editorial Blog</Link>
-          <Link to="/contact" className="block text-gray-700 hover:text-blue-600 transition" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</Link>
-          
+          <Link
+            to="/"
+            className="block text-gray-700 hover:text-blue-600 transition"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link
+            to="/featured"
+            className="block text-gray-700 hover:text-blue-600 transition"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Featured Events
+          </Link>
+          <Link
+            to="/events/1"
+            className="block text-gray-700 hover:text-blue-600 transition"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            All Events
+          </Link>
+          <Link
+            to="/blog"
+            className="block text-gray-700 hover:text-blue-600 transition"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Editorial Blog
+          </Link>
+          <Link
+            to="/contact"
+            className="block text-gray-700 hover:text-blue-600 transition"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Contact Us
+          </Link>
+
           {/* Mobile Categories Dropdown */}
           <div className="relative">
             <button
@@ -99,8 +142,8 @@ export default function Navbar() {
                     to={`/categories/${cat}/1`}
                     className="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition text-gray-700"
                     onClick={() => {
-                      setShowCategories(false);
-                      setIsMobileMenuOpen(false);
+                      setShowCategories(false)
+                      setIsMobileMenuOpen(false)
                     }}
                   >
                     {cat}
@@ -124,8 +167,8 @@ export default function Navbar() {
                   to="/about"
                   className="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition text-gray-700"
                   onClick={() => {
-                    setShowAbout(false);
-                    setIsMobileMenuOpen(false);
+                    setShowAbout(false)
+                    setIsMobileMenuOpen(false)
                   }}
                 >
                   About Us
@@ -134,8 +177,8 @@ export default function Navbar() {
                   to="/sponsors"
                   className="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition text-gray-700"
                   onClick={() => {
-                    setShowAbout(false);
-                    setIsMobileMenuOpen(false);
+                    setShowAbout(false)
+                    setIsMobileMenuOpen(false)
                   }}
                 >
                   Sponsors
@@ -148,10 +191,27 @@ export default function Navbar() {
 
       {/* Desktop navigation menu */}
       <div className="hidden lg:flex gap-6 justify-center items-center text-sm font-medium py-2 px-6 bg-white">
-        <Link to="/" className="text-gray-700 hover:text-blue-600 transition">Home</Link>
-        <Link to="/featured" className="text-gray-700 hover:text-blue-600 transition">Featured Events</Link>
-        <Link to="/events/1" className="text-gray-700 hover:text-blue-600 transition">All Events</Link>
-        <Link to="/blog" className="text-gray-700 hover:text-blue-600 transition">Editorial Blog</Link>
+        <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
+          Home
+        </Link>
+        <Link
+          to="/featured"
+          className="text-gray-700 hover:text-blue-600 transition"
+        >
+          Featured Events
+        </Link>
+        <Link
+          to="/events/1"
+          className="text-gray-700 hover:text-blue-600 transition"
+        >
+          All Events
+        </Link>
+        <Link
+          to="/blog"
+          className="text-gray-700 hover:text-blue-600 transition"
+        >
+          Editorial Blog
+        </Link>
         <div className="relative">
           <button
             onClick={() => setShowCategories((v) => !v)}
@@ -174,7 +234,12 @@ export default function Navbar() {
             </div>
           )}
         </div>
-        <Link to="/contact" className="text-gray-700 hover:text-blue-600 transition">Contact Us</Link>
+        <Link
+          to="/contact"
+          className="text-gray-700 hover:text-blue-600 transition"
+        >
+          Contact Us
+        </Link>
         <div className="relative">
           <button
             onClick={() => setShowAbout((v) => !v)}
@@ -203,5 +268,5 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  );
-} 
+  )
+}
