@@ -46,9 +46,12 @@ export default function Navbar() {
         </button>
 
         {/* Logo/Title - centered */}
-        <h1 className="text-xl lg:text-2xl font-bold text-center flex-1 text-gray-900 mx-auto pl-20">
-          Things to Do in the Hamptons
-        </h1>
+        <Link
+          className="text-xl lg:text-2xl font-bold text-center flex-1 text-gray-900 mx-auto pl-20"
+          to="/"
+        >
+          <h1>Things to Do in the Hamptons</h1>
+        </Link>
 
         {/* Desktop navigation buttons */}
         <div className="hidden lg:flex gap-3 items-center">
