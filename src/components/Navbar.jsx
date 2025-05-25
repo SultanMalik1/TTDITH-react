@@ -21,7 +21,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <nav className="border-b border-gray-200 w-full bg-white">
+    <nav className="border-b border-gray-200 w-full bg-gradient-to-b from-sky-100/80 via-blue-50/70 via-blue-50/40 to-white">
       <div className="flex justify-between items-center py-4 px-6">
         {/* Mobile menu button */}
         <button
@@ -47,10 +47,10 @@ export default function Navbar() {
 
         {/* Logo/Title - centered */}
         <Link
-          className="text-xl lg:text-2xl font-bold text-center flex-1 mx-auto pl-20 font-sans hover:scale-[1.02] transition-transform"
+          className="text-2xl lg:text-3xl font-bold text-center flex-1 mx-auto pl-0 lg:pl-20 font-sans hover:scale-[1.02] transition-transform"
           to="/"
         >
-          <h1>
+          <h1 className="text-center">
             <span className="font-light tracking-tight text-black">
               Things to Do
             </span>
