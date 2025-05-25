@@ -1,23 +1,33 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import ContactPage from "./pages/ContactPage";
-import EventDetailPage from "./pages/EventDetailPage";
-import CategoryPage from "./pages/CategoryPage";
-import AllEventsPage from "./pages/AllEventsPage";
-import DateFilteredEventsPage from "./pages/DateFilteredEventsPage";
-import AboutPage from "./pages/AboutPage";
-import ListEventPage from "./pages/ListEventPage";
-import SponserUsPage from "./pages/SponserUsPage";
-import SponsorsPage from "./sponsors/pages/SponsorsPage";
-import SponsorDetailPage from "./sponsors/pages/SponsorDetailPage";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import FeaturedEventsPage from "./pages/FeaturedEventsPage";
+import React, { useEffect } from "react"
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom"
+import ReactGA from "react-ga4"
+import HomePage from "./pages/HomePage"
+import ContactPage from "./pages/ContactPage"
+import EventDetailPage from "./pages/EventDetailPage"
+import CategoryPage from "./pages/CategoryPage"
+import AllEventsPage from "./pages/AllEventsPage"
+import DateFilteredEventsPage from "./pages/DateFilteredEventsPage"
+import AboutPage from "./pages/AboutPage"
+import ListEventPage from "./pages/ListEventPage"
+import SponserUsPage from "./pages/SponserUsPage"
+import SponsorsPage from "./sponsors/pages/SponsorsPage"
+import SponsorDetailPage from "./sponsors/pages/SponsorDetailPage"
+import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
+import FeaturedEventsPage from "./pages/FeaturedEventsPage"
+
+// Initialize GA4
+ReactGA.initialize("G-6WEJG5ERYL")
 
 function App() {
   return (
     <Router>
+      <RouteTracker />
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -26,7 +36,10 @@ function App() {
         <Route path="/categories/:category" element={<CategoryPage />} />
         <Route path="/events/:page" element={<AllEventsPage />} />
         <Route path="/events" element={<AllEventsPage />} />
-        <Route path="/events/date/:date/:page" element={<DateFilteredEventsPage />} />
+        <Route
+          path="/events/date/:date/:page"
+          element={<DateFilteredEventsPage />}
+        />
         <Route path="/events/date/:date" element={<DateFilteredEventsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
@@ -38,7 +51,18 @@ function App() {
       </Routes>
       <Footer />
     </Router>
-  );
+  )
 }
 
-export default App;
+// Route tracking component
+function RouteTracker() {
+  const location = useLocation()
+
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname })
+  }, [location])
+
+  return null
+}
+
+export default App
