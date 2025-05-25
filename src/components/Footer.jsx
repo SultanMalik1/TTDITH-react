@@ -65,7 +65,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="mailto:info@thingstodointhehamptons.com"
+                  href="mailto:ssaldivar@thingstodointhehamptons.com"
                   className="text-gray-400 hover:text-white transition-colors duration-300"
                 >
                   Email Us
