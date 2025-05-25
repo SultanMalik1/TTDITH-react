@@ -47,10 +47,17 @@ export default function Navbar() {
 
         {/* Logo/Title - centered */}
         <Link
-          className="text-xl lg:text-2xl font-bold text-center flex-1 text-gray-900 mx-auto pl-20"
+          className="text-xl lg:text-2xl font-bold text-center flex-1 mx-auto pl-20 font-sans hover:scale-[1.02] transition-transform"
           to="/"
         >
-          <h1>Things to Do in the Hamptons</h1>
+          <h1>
+            <span className="font-light tracking-tight text-black">
+              Things to Do
+            </span>
+            <span className="block font-extrabold tracking-wide bg-gradient-to-r from-blue-500 via-sky-400 via-cyan-400 to-indigo-400 animate-gradient bg-[length:200%_auto] bg-clip-text text-transparent">
+              in the Hamptons
+            </span>
+          </h1>
         </Link>
 
         {/* Desktop navigation buttons */}
@@ -270,6 +277,23 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes gradient {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+        .animate-gradient {
+          animation: gradient 8s ease infinite;
+        }
+      `}</style>
     </nav>
   )
 }

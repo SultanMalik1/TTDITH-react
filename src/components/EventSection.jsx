@@ -1,29 +1,31 @@
 // src/components/EventSection.jsx
-import React from "react";
-import EventCard from "./EventCard";
+import React from "react"
+import EventCard from "./EventCard"
 
-export default function EventSection({ 
-  title, 
-  events, 
-  buttonLabel, 
+export default function EventSection({
+  title,
+  events,
+  buttonLabel,
   onButtonClick,
   showPagination = false,
   currentPage = 1,
   totalPages = 1,
-  onPageChange
+  onPageChange,
 }) {
   return (
     <div className="mb-12">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <h2 className="text-2xl font-semibold">{title}</h2>
         {buttonLabel && (
-          <button
-            onClick={onButtonClick}
-            className="bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition-colors flex items-center gap-2 w-full sm:w-auto text-center focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-          >
-            {buttonLabel}
-            <span aria-hidden="true">→</span>
-          </button>
+          <div className="flex justify-end">
+            <button
+              onClick={onButtonClick}
+              className="bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition-colors flex items-center gap-2 text-center focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 min-w-fit"
+            >
+              {buttonLabel}
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -55,5 +57,5 @@ export default function EventSection({
         </div>
       )}
     </div>
-  );
+  )
 }
