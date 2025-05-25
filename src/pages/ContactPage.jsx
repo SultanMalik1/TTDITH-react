@@ -44,10 +44,10 @@ const ContactPage = () => {
         <form
           name="contact"
           method="POST"
-          data-netlify="true"
           netlify-honeypot="bot-field"
           onSubmit={handleSubmit}
           className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 w-full max-w-xl"
+          netlify
         >
           {/* Netlify form hidden inputs */}
           <input type="hidden" name="form-name" value="contact" />
