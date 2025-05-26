@@ -34,5 +34,22 @@
     "shortDescription": "Lucid is a hub for local production resources",
     "longDescription": "Whether it’s lodging, catering, crew or equipment, we know all the best people.Need to hire a cinematographer? Or a special effects artist? How about hair & make up? Rent a last minute camera kit? Maybe a half dozens PAs? Can’t forget the chimney sweep you need to get that pyrotechnic cleared.",
     "website": "https://bayfrontbistro.com"
+  },
+  {
+    "id": "NOUCHI-PrintWorks",
+    "name": "NOUCHI PrintWorks",
+    "category": "cottage",
+    "logo": "/sponsor-logos/nouchi_new.png",
+    "shortDescription": "Custom Apparel & Print Services",
+    "longDescription": "NOUCHI PrintWorks is a custom apparel and print service based in the Hamptons, specializing in high-quality, personalized clothing and promotional materials. We cater to both individuals and businesses, offering a wide range of products from t-shirts to banners, all designed to meet your specific needs.",
+    "website": "https://www.nouchiprintworks.com",
+    "whySupport": "As a small business owner, I know how important it is to support local initiatives that help us grow and connect with our community. This platform provides an affordable way for small businesses like mine to reach more customers and showcase our services. By supporting this initiative, we can all thrive together in the Hamptons.",
+    "services": [
+      "Custom Apparel",
+      "Print Services",
+      "Promotional Materials"
+    ],
+    "email": "printing@nouchiprintworks.com",
+    "address": "Bridgehampton, NY"
   }
 ]
