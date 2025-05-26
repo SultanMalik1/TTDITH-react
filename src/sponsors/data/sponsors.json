@@ -14,8 +14,17 @@
     "category": "oceanside",
     "logo": "/sponsor-logos/wallys_logo.jpg",
     "shortDescription": "Handyman Services",
-    "longDescription": "Wally’s Home Services, owned and operated by Rigoberto V Perez, has been serving the Hamptons community for many years. As a Sag Harbor local, Rigoberto takes pride in providing reliable, professional handyman services to both year-round residents and seasonal homeowners. Our team specializes in home maintenance, repairs, and improvements, delivering quality workmanship with attention to detail that our clients have come to trust.",
-    "website": "https://www.wallyshomeservices.net/home"
+    "longDescription": "Wally's Home Services, operated by Rigoberto V Perez, serves the Hamptons community with reliable handyman services. Based in Sag Harbor, their team specializes in home maintenance, repairs, and improvements, delivering quality workmanship to both year-round residents and seasonal homeowners.",
+    "whySupport": "As a small business owner myself, I understand the challenges of gaining visibility in our community. I'm supporting this initiative because it helps local businesses and events access quality marketing assistance at affordable rates. These opportunities are vital for small businesses like mine to thrive and connect with our neighbors.",
+    "services": [
+      "Home Repairs",
+      "Maintenance",
+      "Improvements"
+    ],
+    "website": "https://www.wallyshomeservices.net/home",
+    "phone": "631-644-2374",
+    "email": "",
+    "address": "Sag Harbor, NY"
   },
   {
     "id": "Lucid-Location",
@@ -26,5 +35,4 @@
     "longDescription": "Whether it’s lodging, catering, crew or equipment, we know all the best people.Need to hire a cinematographer? Or a special effects artist? How about hair & make up? Rent a last minute camera kit? Maybe a half dozens PAs? Can’t forget the chimney sweep you need to get that pyrotechnic cleared.",
     "website": "https://bayfrontbistro.com"
   }
-
-] 
+]
