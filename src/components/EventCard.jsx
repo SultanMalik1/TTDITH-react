@@ -1,6 +1,6 @@
 // src/components/EventCard.jsx
-import React from "react";
-import { Link } from "react-router-dom";
+import React from "react"
+import { Link } from "react-router-dom"
 
 export default function EventCard({ event }) {
   return (
@@ -25,17 +25,20 @@ export default function EventCard({ event }) {
           {event.description}
         </p>
         <p className="text-pink-600">
-          {new Date(event.start_time).toLocaleString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-            timeZone: "America/New_York"
-          }).replace(",", " •")} | {event.location}
+          {new Date(event.start_time)
+            .toLocaleString("en-US", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+              timeZone: "America/New_York",
+            })
+            .replace(",", " •")}{" "}
+          | {event.location}
         </p>
       </div>
     </Link>
-  );
+  )
 }
