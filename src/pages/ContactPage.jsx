@@ -43,7 +43,6 @@ const ContactPage = () => {
       <div className="flex justify-center">
         <form
           name="contact"
-          method="POST"
           netlify-honeypot="bot-field"
           onSubmit={handleSubmit}
           className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 w-full max-w-xl"
