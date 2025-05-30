@@ -7,9 +7,11 @@ const SponserUsPage = () => {
     event.preventDefault()
     const form = event.target
     const data = new FormData(form)
-    fetch("/", {
+
+    fetch("/?form-name=sponsor", {
       method: "POST",
-      body: data,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(Array.from(data)).toString(),
     })
       .then(() => {
         form.reset()
@@ -133,21 +135,12 @@ const SponserUsPage = () => {
           name="sponsor"
           method="POST"
           data-netlify="true"
+          action="/sponsor"
           encType="multipart/form-data"
           className="space-y-6 p-8 bg-white rounded-2xl shadow-lg border border-gray-200"
           onSubmit={handleSubmit}
         >
           <input type="hidden" name="form-name" value="sponsor" />
-          <input
-            type="hidden"
-            name="recipient"
-            value="santiagosaldivar19@gmail.com"
-          />
-          <input
-            type="hidden"
-            name="subject"
-            value="New Sponsorship Interest"
-          />
 
           <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
             <label className="font-medium text-gray-700">Company Name</label>

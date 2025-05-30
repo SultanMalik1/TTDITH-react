@@ -7,9 +7,11 @@ const ListEventPage = () => {
     event.preventDefault()
     const form = event.target
     const data = new FormData(form)
-    fetch("/", {
+
+    fetch("/?form-name=promote-event", {
       method: "POST",
-      body: data,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(Array.from(data)).toString(),
     })
       .then(() => {
         form.reset()
@@ -250,6 +252,7 @@ const ListEventPage = () => {
             name="promote-event"
             method="POST"
             data-netlify="true"
+            action="/promote-event"
             encType="multipart/form-data"
             onSubmit={handleSubmit}
             className="space-y-6"
