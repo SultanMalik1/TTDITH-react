@@ -6,19 +6,28 @@ const ContactPage = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
     const form = event.target
-    form.reset()
-    setShowThankYou(true)
-    // Scroll to thank you message
-    setTimeout(() => {
-      const thankYouElement = document.getElementById("thank-you-message")
-      if (thankYouElement) {
-        thankYouElement.scrollIntoView({ behavior: "smooth" })
-      }
-    }, 100)
-    // Hide thank you message after 5 seconds
-    setTimeout(() => {
-      setShowThankYou(false)
-    }, 5000)
+    const data = new FormData(form)
+    fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(data).toString(),
+    })
+      .then(() => {
+        form.reset()
+        setShowThankYou(true)
+        setTimeout(() => {
+          const thankYouElement = document.getElementById("thank-you-message")
+          if (thankYouElement) {
+            thankYouElement.scrollIntoView({ behavior: "smooth" })
+          }
+        }, 100)
+        setTimeout(() => {
+          setShowThankYou(false)
+        }, 5000)
+      })
+      .catch((error) => {
+        console.error("Form submission error:", error)
+      })
   }
 
   return (
@@ -31,7 +40,8 @@ const ContactPage = () => {
       <div className="flex justify-center">
         <form
           name="contact"
-          netlify
+          method="POST"
+          data-netlify="true"
           onSubmit={handleSubmit}
           className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 w-full max-w-xl"
         >

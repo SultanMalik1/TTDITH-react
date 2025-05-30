@@ -6,19 +6,27 @@ const ListEventPage = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
     const form = event.target
-    form.reset()
-    setShowThankYou(true)
-    // Scroll to thank you message
-    setTimeout(() => {
-      const thankYouElement = document.getElementById("thank-you-message")
-      if (thankYouElement) {
-        thankYouElement.scrollIntoView({ behavior: "smooth" })
-      }
-    }, 100)
-    // Hide thank you message after 5 seconds
-    setTimeout(() => {
-      setShowThankYou(false)
-    }, 5000)
+    const data = new FormData(form)
+    fetch("/", {
+      method: "POST",
+      body: data,
+    })
+      .then(() => {
+        form.reset()
+        setShowThankYou(true)
+        setTimeout(() => {
+          const thankYouElement = document.getElementById("thank-you-message")
+          if (thankYouElement) {
+            thankYouElement.scrollIntoView({ behavior: "smooth" })
+          }
+        }, 100)
+        setTimeout(() => {
+          setShowThankYou(false)
+        }, 5000)
+      })
+      .catch((error) => {
+        console.error("Form submission error:", error)
+      })
   }
 
   return (
@@ -240,12 +248,12 @@ const ListEventPage = () => {
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
           <form
             name="promote-event"
-            netlify
+            method="POST"
+            data-netlify="true"
             encType="multipart/form-data"
             onSubmit={handleSubmit}
             className="space-y-6"
           >
-            {/* Netlify form hidden input */}
             <input type="hidden" name="form-name" value="promote-event" />
             <input
               type="hidden"

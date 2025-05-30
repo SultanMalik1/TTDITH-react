@@ -6,17 +6,27 @@ const SponserUsPage = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
     const form = event.target
-    form.reset()
-    setShowThankYou(true)
-    setTimeout(() => {
-      const thankYouElement = document.getElementById("thank-you-message")
-      if (thankYouElement) {
-        thankYouElement.scrollIntoView({ behavior: "smooth" })
-      }
-    }, 100)
-    setTimeout(() => {
-      setShowThankYou(false)
-    }, 5000)
+    const data = new FormData(form)
+    fetch("/", {
+      method: "POST",
+      body: data,
+    })
+      .then(() => {
+        form.reset()
+        setShowThankYou(true)
+        setTimeout(() => {
+          const thankYouElement = document.getElementById("thank-you-message")
+          if (thankYouElement) {
+            thankYouElement.scrollIntoView({ behavior: "smooth" })
+          }
+        }, 100)
+        setTimeout(() => {
+          setShowThankYou(false)
+        }, 5000)
+      })
+      .catch((error) => {
+        console.error("Form submission error:", error)
+      })
   }
 
   return (
@@ -121,12 +131,12 @@ const SponserUsPage = () => {
       <div className="max-w-2xl mx-auto">
         <form
           name="sponsor"
-          netlify
+          method="POST"
+          data-netlify="true"
           encType="multipart/form-data"
           className="space-y-6 p-8 bg-white rounded-2xl shadow-lg border border-gray-200"
           onSubmit={handleSubmit}
         >
-          {/* Netlify form hidden input */}
           <input type="hidden" name="form-name" value="sponsor" />
           <input
             type="hidden"
