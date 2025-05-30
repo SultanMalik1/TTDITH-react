@@ -7,6 +7,45 @@
     <title>Things to Do in the Hamptons</title>
   </head>
   <body>
+    <!-- A little help for the Netlify post-processing bots -->
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <textarea name="message"></textarea>
+    </form>
+
+    <form name="promote-event" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="promotion-type" />
+      <input type="text" name="event-title" />
+      <input type="url" name="event-url" />
+      <input type="url" name="image-url" />
+      <input type="datetime-local" name="start-time" />
+      <input type="datetime-local" name="end-time" />
+      <input type="text" name="town" />
+      <input type="text" name="cost" />
+      <input type="text" name="venue-name" />
+      <input type="text" name="address" />
+      <input type="url" name="registration-url" />
+      <input type="text" name="contact-name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <textarea name="event-description"></textarea>
+    </form>
+
+    <form
+      name="sponsor"
+      netlify
+      netlify-honeypot="bot-field"
+      hidden
+      enctype="multipart/form-data"
+    >
+      <input type="text" name="company" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="file" name="sponsor-image" />
+    </form>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

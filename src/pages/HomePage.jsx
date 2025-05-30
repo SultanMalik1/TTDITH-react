@@ -1,75 +1,86 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabaseClient";
-import EventSection from "../components/EventSection";
-import Loader from "../components/Loader";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import sponsors from '../sponsors/data/sponsors.json';
-import SponsorCard from '../sponsors/components/SponsorCard';
+import React, { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { supabase } from "../lib/supabaseClient"
+import EventSection from "../components/EventSection"
+import Loader from "../components/Loader"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import sponsors from "../sponsors/data/sponsors.json"
+import SponsorCard from "../sponsors/components/SponsorCard"
 
 const CATEGORIES = [
-  "Nature", "Government", "Arts", "Music", "Restaurant",
-  "Community", "Film", "Library", "Health", "Nightlife", "Spiritual"
-];
+  "Nature",
+  "Government",
+  "Arts",
+  "Music",
+  "Restaurant",
+  "Community",
+  "Film",
+  "Library",
+  "Health",
+  "Nightlife",
+  "Spiritual",
+]
 
 function groupEventsByCategory(events) {
-  const grouped = {};
-  CATEGORIES.forEach((cat) => { grouped[cat] = []; });
+  const grouped = {}
+  CATEGORIES.forEach((cat) => {
+    grouped[cat] = []
+  })
   events.forEach((event) => {
     if (grouped[event.category]) {
-      grouped[event.category].push(event);
+      grouped[event.category].push(event)
     }
-  });
-  return grouped;
+  })
+  return grouped
 }
 
 export default function HomePage() {
-  const navigate = useNavigate();
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const navigate = useNavigate()
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [selectedDate, setSelectedDate] = useState(null)
 
   useEffect(() => {
     async function fetchEvents() {
-      setLoading(true);
-      const now = new Date().toISOString();
+      setLoading(true)
+      const now = new Date().toISOString()
       const { data, error } = await supabase
         .from("events")
         .select("*")
         .gt("start_time", now)
-        .order("start_time", { ascending: true });
-      if (!error) setEvents(data);
-      setLoading(false);
+        .order("start_time", { ascending: true })
+      if (!error) setEvents(data)
+      setLoading(false)
     }
-    fetchEvents();
-  }, []);
+    fetchEvents()
+  }, [])
 
-  const groupedEvents = groupEventsByCategory(events);
+  const groupedEvents = groupEventsByCategory(events)
 
   const handleCategoryClick = (category) => {
-    navigate(`/categories/${category}/1`);
-  };
+    navigate(`/categories/${category}/1`)
+  }
 
   const handleAllEventsClick = () => {
-    navigate('/events/1');
-  };
+    navigate("/events/1")
+  }
 
   const handleDateSubmit = () => {
     if (selectedDate) {
-      const formattedDate = selectedDate.toISOString().split('T')[0];
-      navigate(`/events/date/${formattedDate}`);
+      const formattedDate = selectedDate.toISOString().split("T")[0]
+      navigate(`/events/date/${formattedDate}`)
     }
-  };
+  }
 
   const handleViewAllSponsors = () => {
-    navigate('/sponsors');
-  };
+    navigate("/sponsors")
+  }
 
-  if (loading) return <Loader />;
+  if (loading) return <Loader />
 
   // Filter featured events (adjust category as needed)
-  const featuredEvents = events.filter(e => e.category === 'Featured');
+  const featuredEvents = events.filter((e) => e.category === "Featured")
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
@@ -79,7 +90,7 @@ export default function HomePage() {
           title="Featured Events"
           events={featuredEvents.slice(0, 3)}
           buttonLabel="View all featured events"
-          onButtonClick={() => navigate('/featured')}
+          onButtonClick={() => navigate("/featured")}
         />
       )}
 
@@ -108,7 +119,7 @@ export default function HomePage() {
         buttonLabel="All events "
         onButtonClick={handleAllEventsClick}
       />
-      {CATEGORIES.map((category) =>
+      {/* {CATEGORIES.map((category) =>
         groupedEvents[category]?.length ? (
           <EventSection
             key={category}
@@ -118,7 +129,7 @@ export default function HomePage() {
             onButtonClick={() => handleCategoryClick(category)}
           />
         ) : null
-      )}
+      )} */}
       {/* Oceanside Sponsors Section */}
       <div className="mt-16">
         <div className="flex items-center justify-between mb-6">
@@ -132,11 +143,13 @@ export default function HomePage() {
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {sponsors.filter(s => s.category === 'oceanside').map(sponsor => (
-            <SponsorCard key={sponsor.id} sponsor={sponsor} />
-          ))}
+          {sponsors
+            .filter((s) => s.category === "oceanside")
+            .map((sponsor) => (
+              <SponsorCard key={sponsor.id} sponsor={sponsor} />
+            ))}
         </div>
       </div>
     </div>
-  );
+  )
 }
