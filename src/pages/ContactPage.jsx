@@ -3,34 +3,22 @@ import React, { useState } from "react"
 const ContactPage = () => {
   const [showThankYou, setShowThankYou] = useState(false)
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault()
     const form = event.target
-    const formData = new FormData(form)
-
-    try {
-      await fetch("/", {
-        method: "POST",
-        body: formData,
-      })
-
-      form.reset()
-      setShowThankYou(true)
-      // Scroll to thank you message
-      setTimeout(() => {
-        const thankYouElement = document.getElementById("thank-you-message")
-        if (thankYouElement) {
-          thankYouElement.scrollIntoView({ behavior: "smooth" })
-        }
-      }, 100)
-      // Hide thank you message after 5 seconds
-      setTimeout(() => {
-        setShowThankYou(false)
-      }, 5000)
-    } catch (error) {
-      console.error("Error:", error)
-      alert("Failed to submit form. Please try again later.")
-    }
+    form.reset()
+    setShowThankYou(true)
+    // Scroll to thank you message
+    setTimeout(() => {
+      const thankYouElement = document.getElementById("thank-you-message")
+      if (thankYouElement) {
+        thankYouElement.scrollIntoView({ behavior: "smooth" })
+      }
+    }, 100)
+    // Hide thank you message after 5 seconds
+    setTimeout(() => {
+      setShowThankYou(false)
+    }, 5000)
   }
 
   return (
@@ -43,16 +31,12 @@ const ContactPage = () => {
       <div className="flex justify-center">
         <form
           name="contact"
-          netlify-honeypot="bot-field"
+          netlify
           onSubmit={handleSubmit}
           className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 w-full max-w-xl"
-          netlify
         >
-          {/* Netlify form hidden inputs */}
+          {/* Netlify form hidden input */}
           <input type="hidden" name="form-name" value="contact" />
-          <div hidden>
-            <input name="bot-field" />
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
             <label className="font-medium text-gray-700" htmlFor="name">
