@@ -94,6 +94,28 @@ export default function HomePage() {
         />
       )}
 
+      <div></div>
+
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold mb-6">Browse by Category</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {CATEGORIES.map((category) => (
+            <button
+              key={category}
+              onClick={() => handleCategoryClick(category)}
+              className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200"
+            >
+              <span className="text-lg font-medium text-gray-800">
+                {category}
+              </span>
+              <span className="text-sm text-gray-600 mt-1">
+                {groupedEvents[category]?.length || 0} events
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex items-center gap-4 mb-8">
         <div className="flex items-center gap-2">
           <label className="font-medium">Select Date:</label>
