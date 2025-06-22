@@ -1,1 +1,14 @@
 /* /index.html 200 
+
+# Handle client-side routing
+/*    /index.html   200
+
+# SEO-friendly redirects
+/events/  /events/1  301
+/categories/  /events/1  301
+
+# Redirect old URLs to new ones (if any)
+/old-event/*  /event/:splat  301
+
+# Ensure HTTPS
+http://thingstodointhehamptons.com/*  https://thingstodointhehamptons.com/:splat  301 

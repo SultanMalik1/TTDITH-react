@@ -1,0 +1,27 @@
+{
+  "name": "Things to Do in the Hamptons",
+  "short_name": "Hamptons Events",
+  "description": "Discover the best events, activities, and things to do in the Hamptons",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.PNG",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.PNG",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["events", "lifestyle", "travel"],
+  "lang": "en-US",
+  "dir": "ltr"
+}
