@@ -81,7 +81,7 @@ const EventCard = ({ event }) => {
         {/* Tags and Actions */}
         <div className="flex items-center justify-between">
           <div className="flex flex-wrap gap-1">
-            {event.cost && (
+            {event.cost && event.cost !== "0" && event.cost !== 0 && (
               <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">
                 {event.cost}
               </span>
