@@ -92,16 +92,13 @@ export default function HomePage() {
       />
 
       <div className="max-w-7xl mx-auto px-4 py-10">
-        {/* Featured Events Section */}
         {featuredEvents.length > 0 && (
           <EventSection
             title="Featured Events"
             events={featuredEvents.slice(0, 3)}
-            buttonLabel="View all featured events"
             onButtonClick={() => navigate("/featured")}
           />
         )}
-
         {/* Browse by Category Section */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">
@@ -128,7 +125,6 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-
         {/* Date Filter Section */}
         <div className="bg-gray-50 rounded-xl p-6 mb-8">
           <h3 className="text-2xl font-bold mb-4 text-gray-900">
@@ -157,7 +153,6 @@ export default function HomePage() {
             </button>
           </div>
         </div>
-
         {/* Upcoming Events Section */}
         <EventSection
           title="Upcoming Events"
@@ -165,7 +160,6 @@ export default function HomePage() {
           buttonLabel="View all events"
           onButtonClick={handleAllEventsClick}
         />
-
         {/* Sponsors Section */}
         <div className="mt-16">
           <div className="flex items-center justify-between mb-6">

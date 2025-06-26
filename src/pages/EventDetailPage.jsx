@@ -130,7 +130,7 @@ export default function EventDetailPage() {
                 {event.category}
               </span>
             )}
-            {event.cost && event.cost !== "0" && event.cost !== 0 && (
+            {event.cost && (
               <span className="flex items-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
                 <span className="mr-1">💰</span>
                 {event.cost}
