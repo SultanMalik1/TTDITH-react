@@ -58,7 +58,7 @@ const ListEventPage = () => {
                   Main Featured Tab
                 </h4>
                 <p className="text-3xl font-bold text-blue-600">
-                  $75<span className="text-lg">/day</span>
+                  $25<span className="text-lg">/day</span>
                 </p>
                 <ul className="mt-4 space-y-2 text-gray-600">
                   <li className="flex items-center">
@@ -124,64 +124,6 @@ const ListEventPage = () => {
                       />
                     </svg>
                     Social media promotion included
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-xl font-semibold text-gray-900">
-                  Sub Featured Tab
-                </h4>
-                <p className="text-3xl font-bold text-blue-600">
-                  $40<span className="text-lg">/day</span>
-                </p>
-                <ul className="mt-4 space-y-2 text-gray-600">
-                  <li className="flex items-center">
-                    <svg
-                      className="w-5 h-5 mr-2 text-green-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Secondary placement on our homepage
-                  </li>
-                  <li className="flex items-center">
-                    <svg
-                      className="w-5 h-5 mr-2 text-green-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Standard image display
-                  </li>
-                  <li className="flex items-center">
-                    <svg
-                      className="w-5 h-5 mr-2 text-green-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Regular listing in event categories
                   </li>
                 </ul>
               </div>
@@ -281,10 +223,7 @@ const ListEventPage = () => {
                 >
                   <option value="">Select Promotion Type</option>
                   <option value="main-featured">
-                    Main Featured Tab ($75/day)
-                  </option>
-                  <option value="sub-featured">
-                    Sub Featured Tab ($40/day)
+                    Main Featured Tab ($25/day)
                   </option>
                   <option value="free-listing">Free Event Listing</option>
                 </select>
@@ -320,6 +259,18 @@ const ListEventPage = () => {
                   type="url"
                   name="image-url"
                   required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                <label className="font-medium text-gray-700">
+                  Upload Event Image
+                </label>
+                <input
+                  type="file"
+                  name="event-image"
+                  accept="image/*"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
