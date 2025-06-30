@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 import EventSection from "../components/EventSection"
@@ -72,6 +72,170 @@ const isEventToday = (eventDate) => {
   )
 }
 
+// Carousel Component
+const Carousel = ({
+  title,
+  description,
+  items,
+  onItemClick,
+  itemType = "town",
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const carouselRef = useRef(null)
+  const [showLeftArrow, setShowLeftArrow] = useState(false)
+  const [showRightArrow, setShowRightArrow] = useState(true)
+
+  const itemsPerView = () => {
+    if (typeof window !== "undefined") {
+      if (window.innerWidth < 640) return 2 // mobile
+      if (window.innerWidth < 1024) return 3 // tablet
+      return 5 // desktop
+    }
+    return 5
+  }
+
+  const maxIndex = Math.max(0, items.length - itemsPerView())
+
+  const scrollToIndex = (index) => {
+    if (carouselRef.current) {
+      const itemWidth = carouselRef.current.scrollWidth / items.length
+      carouselRef.current.scrollTo({
+        left: index * itemWidth,
+        behavior: "smooth",
+      })
+    }
+    setCurrentIndex(index)
+    setShowLeftArrow(index > 0)
+    setShowRightArrow(index < maxIndex)
+  }
+
+  const scrollNext = () => {
+    if (currentIndex < maxIndex) {
+      scrollToIndex(currentIndex + 1)
+    }
+  }
+
+  const scrollPrev = () => {
+    if (currentIndex > 0) {
+      scrollToIndex(currentIndex - 1)
+    }
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      const newMaxIndex = Math.max(0, items.length - itemsPerView())
+      setShowLeftArrow(currentIndex > 0)
+      setShowRightArrow(currentIndex < newMaxIndex)
+    }
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [currentIndex, items.length])
+
+  return (
+    <div className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">{title}</h2>
+          <p className="text-gray-600">{description}</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={scrollPrev}
+            disabled={!showLeftArrow}
+            className="p-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+          >
+            <svg
+              className="w-5 h-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={scrollNext}
+            disabled={!showRightArrow}
+            className="p-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+          >
+            <svg
+              className="w-5 h-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div className="relative">
+        <div
+          ref={carouselRef}
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {items.map((item, index) => (
+            <div
+              key={index}
+              onClick={() => onItemClick(item)}
+              className="flex-shrink-0 w-48 sm:w-56 lg:w-64 cursor-pointer group"
+            >
+              <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-300 p-6 h-full">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                    {item.name}
+                  </h3>
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                      {item.count} {itemType === "town" ? "events" : "events"}
+                    </span>
+                  </div>
+                  {itemType === "category" && (
+                    <div className="mt-3">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${Math.min(
+                              (item.count /
+                                Math.max(...items.map((i) => i.count))) *
+                                100,
+                              100
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+    </div>
+  )
+}
+
 export default function HomePage() {
   const navigate = useNavigate()
   const [events, setEvents] = useState([])
@@ -126,6 +290,20 @@ export default function HomePage() {
   // Filter today's events
   const todaysEvents = events.filter((e) => isEventToday(e.start_time))
 
+  // Prepare town data for carousel
+  const townData = HAMPTONS_TOWNS.slice(0, 15)
+    .map((town) => ({
+      name: town,
+      count: events.filter((e) => e.town === town).length,
+    }))
+    .filter((town) => town.count > 0) // Only show towns with events
+
+  // Prepare category data for carousel
+  const categoryData = CATEGORIES.map((category) => ({
+    name: category,
+    count: groupedEvents[category]?.length || 0,
+  })).filter((category) => category.count > 0) // Only show categories with events
+
   return (
     <>
       <SEO
@@ -171,7 +349,7 @@ export default function HomePage() {
             </div>
             <EventSection
               title=""
-              events={todaysEvents.slice(0, 6)}
+              events={todaysEvents.slice(0, 3)}
               buttonLabel="View all today's events"
               onButtonClick={() => navigate("/events/1?today=true")}
             />
@@ -187,60 +365,27 @@ export default function HomePage() {
           />
         )}
 
-        {/* Browse by Town Section - SEO Gold */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-gray-900">
-            Things to Do by Town
-          </h2>
-          <p className="text-gray-600 mb-8">
-            Explore events and activities in your favorite Hamptons town. From
-            East Hampton's art scene to Montauk's beaches, each town offers
-            unique experiences.
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {HAMPTONS_TOWNS.slice(0, 15).map((town) => (
-              <button
-                key={town}
-                onClick={() => handleTownClick(town)}
-                className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 hover:border-blue-300"
-              >
-                <span className="text-sm font-medium text-gray-800 text-center">
-                  {town}
-                </span>
-                <span className="text-xs text-gray-600 mt-1">
-                  {events.filter((e) => e.town === town).length} events
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Browse by Town Section - Carousel */}
+        {townData.length > 0 && (
+          <Carousel
+            title="Things to Do by Town"
+            description="Explore events and activities in your favorite Hamptons town. From East Hampton's art scene to Montauk's beaches, each town offers unique experiences."
+            items={townData}
+            onItemClick={(town) => handleTownClick(town.name)}
+            itemType="town"
+          />
+        )}
 
-        {/* Browse by Category Section */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-gray-900">
-            Browse Events by Category
-          </h2>
-          <p className="text-gray-600 mb-8">
-            Find the perfect activity for your Hamptons visit. From outdoor
-            adventures to cultural experiences, we've got you covered.
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {CATEGORIES.map((category) => (
-              <button
-                key={category}
-                onClick={() => handleCategoryClick(category)}
-                className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 hover:border-blue-300"
-              >
-                <span className="text-lg font-medium text-gray-800">
-                  {category}
-                </span>
-                <span className="text-sm text-gray-600 mt-1">
-                  {groupedEvents[category]?.length || 0} events
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Browse by Category Section - Carousel */}
+        {categoryData.length > 0 && (
+          <Carousel
+            title="Browse Events by Category"
+            description="Find the perfect activity for your Hamptons visit. From outdoor adventures to cultural experiences, we've got you covered."
+            items={categoryData}
+            onItemClick={(category) => handleCategoryClick(category.name)}
+            itemType="category"
+          />
+        )}
 
         {/* Date Filter Section */}
         <div className="bg-gray-50 rounded-xl p-6 mb-8">
