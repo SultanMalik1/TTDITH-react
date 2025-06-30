@@ -61,26 +61,7 @@ const ListEventPage = () => {
     const formData = new FormData(form)
 
     try {
-      // Prepare the event data
-      const eventData = {
-        title: formData.get("event-title"),
-        description: formData.get("event-description"),
-        start_time: formData.get("start-time"),
-        end_time: formData.get("end-time"),
-        image_url: formData.get("image-url") || null,
-        town: formData.get("town"),
-        cost: formData.get("cost"),
-        address: formData.get("address"),
-        category: formData.get("category"),
-        registration_url: formData.get("registration-url") || null,
-        contact_name: formData.get("contact-name"),
-        email: formData.get("email"),
-        phone: formData.get("phone"),
-        status: "pending",
-        headline_type: "normal",
-        promotion_type:
-          selectedPromotion === "premium" ? "main-featured" : "free-listing",
-      }
+      let imageUrl = formData.get("image-url") || null
 
       // Handle image upload if provided
       const imageFile = formData.get("event-image")
@@ -88,7 +69,7 @@ const ListEventPage = () => {
         const fileExt = imageFile.name.split(".").pop()
         const fileName = `${Date.now()}.${fileExt}`
         const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("event-images")
+          .from("pending-events")
           .upload(fileName, imageFile)
 
         if (uploadError) {
@@ -98,23 +79,65 @@ const ListEventPage = () => {
         // Get the public URL for the uploaded image
         const {
           data: { publicUrl },
-        } = supabase.storage.from("event-images").getPublicUrl(fileName)
+        } = supabase.storage.from("pending-events").getPublicUrl(fileName)
 
-        eventData.image_url = publicUrl
+        imageUrl = publicUrl
       }
 
       // Validate that either image_url or image file is provided
-      if (!eventData.image_url && !imageFile) {
+      if (!imageUrl && !imageFile) {
         throw new Error("Please provide either an image URL or upload an image")
       }
 
-      // Insert the event into the database
-      const { data, error: insertError } = await supabase
-        .from("user_submitted_events")
-        .insert([eventData])
+      if (hasListedElsewhere === "yes") {
+        // For events already listed elsewhere - insert into scraped_events table
+        const scrapedEventData = {
+          event_url: formData.get("event-url"),
+          image_url: imageUrl,
+          contact_name: formData.get("contact-name"),
+          contact_email: formData.get("email"),
+          contact_phone: formData.get("phone"),
+          town: formData.get("town"),
+          category: formData.get("category"),
+          status: "pending",
+        }
 
-      if (insertError) {
-        throw new Error("Failed to submit event: " + insertError.message)
+        const { data: scrapedData, error: scrapedError } = await supabase
+          .from("scraped_events")
+          .insert([scrapedEventData])
+
+        if (scrapedError) {
+          throw new Error("Failed to submit event: " + scrapedError.message)
+        }
+      } else {
+        // For new events - insert into user_submitted_events table
+        const eventData = {
+          title: formData.get("event-title"),
+          description: formData.get("event-description"),
+          start_time: formData.get("start-time"),
+          end_time: formData.get("end-time"),
+          image_url: imageUrl,
+          town: formData.get("town"),
+          cost: formData.get("cost"),
+          address: formData.get("address"),
+          category: formData.get("category"),
+          registration_url: formData.get("registration-url") || null,
+          contact_name: formData.get("contact-name"),
+          email: formData.get("email"),
+          phone: formData.get("phone"),
+          status: "pending",
+          headline_type: "normal",
+          promotion_type:
+            selectedPromotion === "premium" ? "main-featured" : "free-listing",
+        }
+
+        const { data, error: insertError } = await supabase
+          .from("user_submitted_events")
+          .insert([eventData])
+
+        if (insertError) {
+          throw new Error("Failed to submit event: " + insertError.message)
+        }
       }
 
       // Success - show thank you message
@@ -459,7 +482,7 @@ const ListEventPage = () => {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
                       <label className="font-medium text-gray-700">
-                        Event URL
+                        Event URL *
                       </label>
                       <input
                         type="url"
@@ -472,12 +495,11 @@ const ListEventPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
                       <label className="font-medium text-gray-700">
-                        Event Image URL
+                        Event Image URL (optional)
                       </label>
                       <input
                         type="url"
                         name="image-url"
-                        required
                         placeholder="https://example.com/event-image.jpg"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
@@ -485,11 +507,12 @@ const ListEventPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
                       <label className="font-medium text-gray-700">
-                        Upload Event Image
+                        Upload Event Image*
                       </label>
                       <input
                         type="file"
                         name="event-image"
+                        required
                         accept="image/*"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
@@ -497,7 +520,53 @@ const ListEventPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
                       <label className="font-medium text-gray-700">
-                        Contact Name
+                        Town *
+                      </label>
+                      <select
+                        name="town"
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select a town</option>
+                        {towns.map((town) => (
+                          <option key={town} value={town}>
+                            {town}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedPromotion === "premium" ? (
+                      <>
+                        <input type="hidden" name="category" value="Featured" />
+                        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-center">
+                          <strong>Premium Promotion:</strong> We will send you a
+                          link for payment within 12 hours to your phone number.
+                        </div>
+                      </>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                        <label className="font-medium text-gray-700">
+                          Category *
+                        </label>
+                        <select
+                          name="category"
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Select a category</option>
+                          {categories.map((category) => (
+                            <option key={category} value={category}>
+                              {category}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Contact Name *
                       </label>
                       <input
                         type="text"
@@ -511,7 +580,9 @@ const ListEventPage = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                      <label className="font-medium text-gray-700">Email</label>
+                      <label className="font-medium text-gray-700">
+                        Email *
+                      </label>
                       <input
                         type="email"
                         name="email"
@@ -522,7 +593,9 @@ const ListEventPage = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                      <label className="font-medium text-gray-700">Phone</label>
+                      <label className="font-medium text-gray-700">
+                        Phone *
+                      </label>
                       <input
                         type="tel"
                         name="phone"
@@ -627,6 +700,34 @@ const ListEventPage = () => {
                       </select>
                     </div>
 
+                    {selectedPromotion === "premium" ? (
+                      <>
+                        <input type="hidden" name="category" value="Featured" />
+                        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-center">
+                          <strong>Premium Promotion:</strong> We will send you a
+                          link for payment within 12 hours to your phone number.
+                        </div>
+                      </>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                        <label className="font-medium text-gray-700">
+                          Category *
+                        </label>
+                        <select
+                          name="category"
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Select a category</option>
+                          {categories.map((category) => (
+                            <option key={category} value={category}>
+                              {category}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
                       <label className="font-medium text-gray-700">
                         Cost *
@@ -650,24 +751,6 @@ const ListEventPage = () => {
                         required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                      <label className="font-medium text-gray-700">
-                        Category *
-                      </label>
-                      <select
-                        name="category"
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select a category</option>
-                        {categories.map((category) => (
-                          <option key={category} value={category}>
-                            {category}
-                          </option>
-                        ))}
-                      </select>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
