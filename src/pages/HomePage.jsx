@@ -23,6 +23,30 @@ const CATEGORIES = [
   "Spiritual",
 ]
 
+const HAMPTONS_TOWNS = [
+  "East Hampton",
+  "Southampton",
+  "Montauk",
+  "Sag Harbor",
+  "Bridgehampton",
+  "Water Mill",
+  "Amagansett",
+  "Wainscott",
+  "Sagaponack",
+  "Hampton Bays",
+  "Westhampton",
+  "Quogue",
+  "East Quogue",
+  "Remsenburg-Speonk",
+  "Flanders",
+  "Northampton",
+  "Noyack",
+  "Quiogue",
+  "Tuckahoe",
+  "Springs",
+  "Shelter Island",
+]
+
 function groupEventsByCategory(events) {
   const grouped = {}
   CATEGORIES.forEach((cat) => {
@@ -34,6 +58,18 @@ function groupEventsByCategory(events) {
     }
   })
   return grouped
+}
+
+// Check if event is happening today
+const isEventToday = (eventDate) => {
+  const today = new Date()
+  const eventDateObj = new Date(eventDate)
+
+  return (
+    today.getFullYear() === eventDateObj.getFullYear() &&
+    today.getMonth() === eventDateObj.getMonth() &&
+    today.getDate() === eventDateObj.getDate()
+  )
 }
 
 export default function HomePage() {
@@ -78,10 +114,17 @@ export default function HomePage() {
     navigate("/sponsors")
   }
 
+  const handleTownClick = (town) => {
+    navigate(`/events/1?town=${encodeURIComponent(town)}`)
+  }
+
   if (loading) return <Loader />
 
   // Filter featured events (adjust category as needed)
   const featuredEvents = events.filter((e) => e.category === "Featured")
+
+  // Filter today's events
+  const todaysEvents = events.filter((e) => isEventToday(e.start_time))
 
   return (
     <>
@@ -92,6 +135,50 @@ export default function HomePage() {
       />
 
       <div className="max-w-7xl mx-auto px-4 py-10">
+        {/* Hero Section with SEO Content */}
+        <div className="text-center mb-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8">
+          <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+            Your complete guide to events, activities, and attractions across
+            the Hamptons. From East Hampton to Montauk, discover the best things
+            to do today and this weekend.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <button
+              onClick={() => navigate("/events/1")}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            >
+              Browse All Events
+            </button>
+            <button
+              onClick={() => navigate("/featured")}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+            >
+              Featured Activities
+            </button>
+          </div>
+        </div>
+
+        {/* Today's Events Section */}
+        {todaysEvents.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">
+                🔥 Events Happening Today
+              </h2>
+              <span className="ml-3 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+                {todaysEvents.length} events
+              </span>
+            </div>
+            <EventSection
+              title=""
+              events={todaysEvents.slice(0, 6)}
+              buttonLabel="View all today's events"
+              onButtonClick={() => navigate("/events/1?today=true")}
+            />
+          </div>
+        )}
+
+        {/* Featured Events Section */}
         {featuredEvents.length > 0 && (
           <EventSection
             title="Featured Events"
@@ -99,6 +186,35 @@ export default function HomePage() {
             onButtonClick={() => navigate("/featured")}
           />
         )}
+
+        {/* Browse by Town Section - SEO Gold */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900">
+            Things to Do by Town
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Explore events and activities in your favorite Hamptons town. From
+            East Hampton's art scene to Montauk's beaches, each town offers
+            unique experiences.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {HAMPTONS_TOWNS.slice(0, 15).map((town) => (
+              <button
+                key={town}
+                onClick={() => handleTownClick(town)}
+                className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 hover:border-blue-300"
+              >
+                <span className="text-sm font-medium text-gray-800 text-center">
+                  {town}
+                </span>
+                <span className="text-xs text-gray-600 mt-1">
+                  {events.filter((e) => e.town === town).length} events
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Browse by Category Section */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">
@@ -125,6 +241,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+
         {/* Date Filter Section */}
         <div className="bg-gray-50 rounded-xl p-6 mb-8">
           <h3 className="text-2xl font-bold mb-4 text-gray-900">
@@ -153,13 +270,58 @@ export default function HomePage() {
             </button>
           </div>
         </div>
+
+        {/* SEO Content Section */}
+        <div className="mb-12 bg-white rounded-xl p-8 shadow-md">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900">
+            Discover the Best Things to Do in the Hamptons
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-xl font-semibold mb-4 text-gray-800">
+                🏖️ Beach & Outdoor Activities
+              </h3>
+              <p className="text-gray-700 mb-4">
+                From pristine beaches in Montauk to hiking trails in East
+                Hampton, the Hamptons offer endless outdoor adventures. Enjoy
+                surfing, paddleboarding, or simply relaxing on some of the most
+                beautiful beaches in New York.
+              </p>
+              <ul className="text-gray-600 space-y-2">
+                <li>• Beach activities and water sports</li>
+                <li>• Hiking and nature trails</li>
+                <li>• Golf courses and tennis</li>
+                <li>• Fishing and boating</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4 text-gray-800">
+                🎨 Arts & Culture
+              </h3>
+              <p className="text-gray-700 mb-4">
+                The Hamptons are a cultural hub with world-class art galleries,
+                museums, and performance venues. Explore the vibrant arts scene
+                from Sag Harbor's historic theaters to East Hampton's
+                contemporary galleries.
+              </p>
+              <ul className="text-gray-600 space-y-2">
+                <li>• Art galleries and museums</li>
+                <li>• Live music and performances</li>
+                <li>• Film festivals and screenings</li>
+                <li>• Cultural events and workshops</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Upcoming Events Section */}
-        <EventSection
+        {/* <EventSection
           title="Upcoming Events"
           events={events.slice(0, 3)}
           buttonLabel="View all events"
           onButtonClick={handleAllEventsClick}
-        />
+        /> */}
+
         {/* Sponsors Section */}
         <div className="mt-16">
           <div className="flex items-center justify-between mb-6">

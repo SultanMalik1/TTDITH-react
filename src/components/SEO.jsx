@@ -13,6 +13,7 @@ const SEO = ({
   modifiedTime,
   section,
   tags = [],
+  faqData = null,
 }) => {
   const siteName = "Things to Do in the Hamptons"
   const siteUrl = "https://thingstodointhehamptons.com" // Update with your actual domain
@@ -83,6 +84,23 @@ const SEO = ({
       <meta name="geo.placename" content="The Hamptons, New York" />
       <meta name="geo.position" content="40.9634;-72.1848" />
       <meta name="ICBM" content="40.9634, -72.1848" />
+      {/* FAQ Schema Markup */}
+      {faqData && (
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqData.map((faq) => ({
+              "@type": "Question",
+              name: faq.question,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: faq.answer,
+              },
+            })),
+          })}
+        </script>
+      )}
       {/* Structured Data for Events */}
       {type === "article" && (
         <script type="application/ld+json">

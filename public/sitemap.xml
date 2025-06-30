@@ -21,8 +21,14 @@
   <url>
     <loc>https://thingstodointhehamptons.com/featured</loc>
     <lastmod>2024-01-01</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thingstodointhehamptons.com/faq</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://thingstodointhehamptons.com/categories/Nature</loc>

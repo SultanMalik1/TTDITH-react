@@ -21,6 +21,7 @@ import SponsorDetailPage from "./sponsors/pages/SponsorDetailPage"
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import FeaturedEventsPage from "./pages/FeaturedEventsPage"
+import FAQPage from "./pages/FAQPage"
 import SEO from "./components/SEO"
 
 // Initialize GA4
@@ -57,6 +58,7 @@ function App() {
           />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/faq" element={<FAQPage />} />
           <Route path="/list-event" element={<ListEventPage />} />
           <Route path="/sponsor" element={<SponserUsPage />} />
           <Route path="/sponsors" element={<SponsorsPage />} />
