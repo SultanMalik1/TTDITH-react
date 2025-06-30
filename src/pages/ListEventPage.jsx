@@ -1,34 +1,161 @@
 import React, { useState } from "react"
+import { supabase } from "../lib/supabaseClient"
 
 const ListEventPage = () => {
   const [showThankYou, setShowThankYou] = useState(false)
+  const [selectedPromotion, setSelectedPromotion] = useState("")
+  const [hasListedElsewhere, setHasListedElsewhere] = useState(null)
+  const [showForm, setShowForm] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (event) => {
+  const towns = [
+    "Montauk",
+    "Amagansett",
+    "East Hampton",
+    "Wainscott",
+    "Sagaponack",
+    "Bridgehampton",
+    "Water Mill",
+    "Southampton",
+    "North Sea",
+    "Shinnecock Hills",
+    "Hampton Bays",
+    "Quogue",
+    "Westhampton",
+    "East Quogue",
+    "Remsenburg-Speonk",
+    "Flanders",
+    "Northampton",
+    "Noyack",
+    "Quiogue",
+    "Tuckahoe",
+    "Springs",
+    "East End",
+    "Sagharbor",
+    "Sag Harbor",
+    "Shelter Island",
+  ]
+
+  const categories = [
+    "Nature",
+    "Government",
+    "Arts",
+    "Music",
+    "Restaurant",
+    "Community",
+    "Film",
+    "Library",
+    "Health",
+    "Nightlife",
+    "Spiritual",
+    "Featured",
+  ]
+
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    const form = event.target
-    const data = new FormData(form)
+    setIsSubmitting(true)
+    setError("")
 
-    fetch("/?form-name=promote-event", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(Array.from(data)).toString(),
-    })
-      .then(() => {
-        form.reset()
-        setShowThankYou(true)
-        setTimeout(() => {
-          const thankYouElement = document.getElementById("thank-you-message")
-          if (thankYouElement) {
-            thankYouElement.scrollIntoView({ behavior: "smooth" })
-          }
-        }, 100)
-        setTimeout(() => {
-          setShowThankYou(false)
-        }, 5000)
-      })
-      .catch((error) => {
-        console.error("Form submission error:", error)
-      })
+    const form = event.target
+    const formData = new FormData(form)
+
+    try {
+      // Prepare the event data
+      const eventData = {
+        title: formData.get("event-title"),
+        description: formData.get("event-description"),
+        start_time: formData.get("start-time"),
+        end_time: formData.get("end-time"),
+        image_url: formData.get("image-url") || null,
+        town: formData.get("town"),
+        cost: formData.get("cost"),
+        address: formData.get("address"),
+        category: formData.get("category"),
+        registration_url: formData.get("registration-url") || null,
+        contact_name: formData.get("contact-name"),
+        email: formData.get("email"),
+        phone: formData.get("phone"),
+        status: "pending",
+        headline_type: "normal",
+        promotion_type:
+          selectedPromotion === "premium" ? "main-featured" : "free-listing",
+      }
+
+      // Handle image upload if provided
+      const imageFile = formData.get("event-image")
+      if (imageFile && imageFile.size > 0) {
+        const fileExt = imageFile.name.split(".").pop()
+        const fileName = `${Date.now()}.${fileExt}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("event-images")
+          .upload(fileName, imageFile)
+
+        if (uploadError) {
+          throw new Error("Failed to upload image: " + uploadError.message)
+        }
+
+        // Get the public URL for the uploaded image
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("event-images").getPublicUrl(fileName)
+
+        eventData.image_url = publicUrl
+      }
+
+      // Validate that either image_url or image file is provided
+      if (!eventData.image_url && !imageFile) {
+        throw new Error("Please provide either an image URL or upload an image")
+      }
+
+      // Insert the event into the database
+      const { data, error: insertError } = await supabase
+        .from("user_submitted_events")
+        .insert([eventData])
+
+      if (insertError) {
+        throw new Error("Failed to submit event: " + insertError.message)
+      }
+
+      // Success - show thank you message
+      form.reset()
+      setShowThankYou(true)
+      setTimeout(() => {
+        const thankYouElement = document.getElementById("thank-you-message")
+        if (thankYouElement) {
+          thankYouElement.scrollIntoView({ behavior: "smooth" })
+        }
+      }, 100)
+      setTimeout(() => {
+        setShowThankYou(false)
+        resetFlow()
+      }, 5000)
+    } catch (error) {
+      console.error("Form submission error:", error)
+      setError(error.message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handlePromotionSelect = (promotionType) => {
+    setSelectedPromotion(promotionType)
+  }
+
+  const handleListedElsewhere = (answer) => {
+    setHasListedElsewhere(answer)
+    if (answer === "yes") {
+      setShowForm(true)
+    } else {
+      setShowForm(true)
+    }
+  }
+
+  const resetFlow = () => {
+    setSelectedPromotion("")
+    setHasListedElsewhere(null)
+    setShowForm(false)
+    setError("")
   }
 
   return (
@@ -45,22 +172,120 @@ const ListEventPage = () => {
           </p>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Premium Promotion Card */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Premium Promotion
-            </h3>
-            <div className="space-y-4">
-              <div className="border-b border-gray-100 pb-4">
-                <h4 className="text-xl font-semibold text-gray-900">
-                  Main Featured Tab
-                </h4>
-                <p className="text-3xl font-bold text-blue-600">
-                  $25<span className="text-lg">/day</span>
-                </p>
-                <ul className="mt-4 space-y-2 text-gray-600">
+        {/* Step 1: Pricing Cards */}
+        {!selectedPromotion && (
+          <div className="space-y-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                Step 1: Choose Your Promotion
+              </h2>
+              <p className="text-gray-600">
+                Select how you'd like to promote your event
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Premium Promotion Card */}
+              <div
+                className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105"
+                onClick={() => handlePromotionSelect("premium")}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Premium Promotion
+                  </h3>
+                  <div className="w-6 h-6 rounded-full border-2 border-gray-300"></div>
+                </div>
+                <div className="space-y-4">
+                  <div className="border-b border-gray-100 pb-4">
+                    <h4 className="text-xl font-semibold text-gray-900">
+                      Main Featured Tab
+                    </h4>
+                    <p className="text-3xl font-bold text-blue-600">
+                      $25<span className="text-lg">/day</span>
+                    </p>
+                    <ul className="mt-4 space-y-2 text-gray-600">
+                      <li className="flex items-center">
+                        <svg
+                          className="w-5 h-5 mr-2 text-green-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Top placement on our homepage
+                      </li>
+                      <li className="flex items-center">
+                        <svg
+                          className="w-5 h-5 mr-2 text-green-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Larger image display
+                      </li>
+                      <li className="flex items-center">
+                        <svg
+                          className="w-5 h-5 mr-2 text-green-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Priority listing in event categories
+                      </li>
+                      <li className="flex items-center">
+                        <svg
+                          className="w-5 h-5 mr-2 text-green-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Social media promotion included
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Free Listing Card */}
+              <div
+                className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105"
+                onClick={() => handlePromotionSelect("free")}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Free Event Listing
+                  </h3>
+                  <div className="w-6 h-6 rounded-full border-2 border-gray-300"></div>
+                </div>
+                <ul className="space-y-4 text-gray-600">
                   <li className="flex items-center">
                     <svg
                       className="w-5 h-5 mr-2 text-green-500"
@@ -75,7 +300,7 @@ const ListEventPage = () => {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    Top placement on our homepage
+                    Basic listing in our event directory
                   </li>
                   <li className="flex items-center">
                     <svg
@@ -91,7 +316,7 @@ const ListEventPage = () => {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    Larger image display
+                    Standard image display
                   </li>
                   <li className="flex items-center">
                     <svg
@@ -107,357 +332,468 @@ const ListEventPage = () => {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    Priority listing in event categories
-                  </li>
-                  <li className="flex items-center">
-                    <svg
-                      className="w-5 h-5 mr-2 text-green-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Social media promotion included
+                    Regular listing in event categories
                   </li>
                 </ul>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Free Listing Card */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Free Event Listing
-            </h3>
-            <ul className="space-y-4 text-gray-600">
-              <li className="flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Basic listing in our event directory
-              </li>
-              <li className="flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Standard image display
-              </li>
-              <li className="flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Regular listing in event categories
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Form Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-          <form
-            name="promote-event"
-            method="POST"
-            data-netlify="true"
-            action="/promote-event"
-            encType="multipart/form-data"
-            onSubmit={handleSubmit}
-            className="space-y-6"
-          >
-            <input type="hidden" name="form-name" value="promote-event" />
-            <input
-              type="hidden"
-              name="recipient"
-              value="santiagosaldivar19@gmail.com"
-            />
-            <input
-              type="hidden"
-              name="subject"
-              value="New Event Listing Request"
-            />
-
-            <div className="grid grid-cols-1 gap-6">
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">
-                  Promotion Type
-                </label>
-                <select
-                  name="promotion-type"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select Promotion Type</option>
-                  <option value="main-featured">
-                    Main Featured Tab ($25/day)
-                  </option>
-                  <option value="free-listing">Free Event Listing</option>
-                </select>
+        {/* Step 2: Event Listing Question */}
+        {selectedPromotion && hasListedElsewhere === null && (
+          <div className="space-y-8">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center space-x-4 mb-4">
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                  1
+                </div>
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                  2
+                </div>
+                <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                  3
+                </div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">Event Title</label>
-                <input
-                  type="text"
-                  name="event-title"
-                  required
-                  minLength="2"
-                  maxLength="100"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">Event URL</label>
-                <input
-                  type="url"
-                  name="event-url"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">
-                  Event Image URL
-                </label>
-                <input
-                  type="url"
-                  name="image-url"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">
-                  Upload Event Image
-                </label>
-                <input
-                  type="file"
-                  name="event-image"
-                  accept="image/*"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">Start Time</label>
-                <input
-                  type="datetime-local"
-                  name="start-time"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">End Time</label>
-                <input
-                  type="datetime-local"
-                  name="end-time"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">Town</label>
-                <input
-                  type="text"
-                  name="town"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">Cost</label>
-                <input
-                  type="text"
-                  name="cost"
-                  required
-                  placeholder="e.g., Free, $20, $50-100"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">
-                  Business/Venue Name
-                </label>
-                <input
-                  type="text"
-                  name="venue-name"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">
-                  Registration URL
-                </label>
-                <input
-                  type="url"
-                  name="registration-url"
-                  placeholder="e.g., Eventbrite link"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">
-                  Contact Name
-                </label>
-                <input
-                  type="text"
-                  name="contact-name"
-                  required
-                  minLength="2"
-                  maxLength="100"
-                  pattern="[A-Za-z\s\-']+"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                <label className="font-medium text-gray-700">Phone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  required
-                  pattern="[0-9+\-()\s]{10,20}"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-start">
-              <label className="font-medium text-gray-700">
-                Event Description
-              </label>
-              <textarea
-                name="event-description"
-                required
-                rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              ></textarea>
-            </div>
-
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md"
-              >
-                Submit Event
-              </button>
-            </div>
-          </form>
-
-          {showThankYou && (
-            <div
-              id="thank-you-message"
-              className="mt-8 p-6 bg-green-50 text-green-800 rounded-lg text-center border border-green-200 transform transition-all duration-500 ease-in-out animate-fade-in"
-              style={{
-                animation: "fadeIn 0.5s ease-in-out",
-                boxShadow:
-                  "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              }}
-            >
-              <div className="flex items-center justify-center mb-3">
-                <svg
-                  className="w-8 h-8 text-green-500 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                <h3 className="text-xl font-bold">Thank You!</h3>
-              </div>
-              <p className="text-green-700">
-                We've received your event listing request and will get back to
-                you shortly.
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                Step 2: Event Listing Status
+              </h2>
+              <p className="text-gray-600">
+                Have you already listed your event elsewhere?
               </p>
             </div>
-          )}
 
-          <style jsx>{`
-            @keyframes fadeIn {
-              from {
-                opacity: 0;
-                transform: translateY(-10px);
-              }
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
-            .animate-fade-in {
-              animation: fadeIn 0.5s ease-in-out;
-            }
-          `}</style>
-        </div>
+            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              <div className="text-center mb-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Is your event already listed on Eventbrite, Meetup.com, or
+                  your own website?
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  This helps us determine the best way to collect your event
+                  information
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <button
+                  onClick={() => handleListedElsewhere("yes")}
+                  className="p-6 border-2 border-blue-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 text-left group"
+                >
+                  <div className="flex items-center mb-3">
+                    <div className="w-6 h-6 border-2 border-blue-500 rounded-full mr-3 group-hover:bg-blue-500 transition-colors duration-300"></div>
+                    <h4 className="text-lg font-semibold text-gray-900">
+                      Yes, I have
+                    </h4>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    My event is already listed on Eventbrite, Meetup, or my
+                    website. I just need to provide the URL and image.
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => handleListedElsewhere("no")}
+                  className="p-6 border-2 border-gray-200 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 text-left group"
+                >
+                  <div className="flex items-center mb-3">
+                    <div className="w-6 h-6 border-2 border-gray-500 rounded-full mr-3 group-hover:bg-gray-500 transition-colors duration-300"></div>
+                    <h4 className="text-lg font-semibold text-gray-900">
+                      No, I haven't
+                    </h4>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    I need to provide all the event details. I'll fill out the
+                    complete form.
+                  </p>
+                </button>
+              </div>
+
+              <div className="mt-6 text-center">
+                <button
+                  onClick={resetFlow}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-300"
+                >
+                  ← Back to promotion options
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Form Section */}
+        {showForm && (
+          <div className="space-y-8">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center space-x-4 mb-4">
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                  1
+                </div>
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                  2
+                </div>
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                  3
+                </div>
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                Step 3: Event Information
+              </h2>
+              <p className="text-gray-600">
+                {hasListedElsewhere === "yes"
+                  ? "Provide your event URL and image"
+                  : "Fill out your event details"}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {hasListedElsewhere === "yes" ? (
+                  // Simple form for events already listed elsewhere
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Event URL
+                      </label>
+                      <input
+                        type="url"
+                        name="event-url"
+                        required
+                        placeholder="https://www.eventbrite.com/..."
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Event Image URL
+                      </label>
+                      <input
+                        type="url"
+                        name="image-url"
+                        required
+                        placeholder="https://example.com/event-image.jpg"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Upload Event Image
+                      </label>
+                      <input
+                        type="file"
+                        name="event-image"
+                        accept="image/*"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Contact Name
+                      </label>
+                      <input
+                        type="text"
+                        name="contact-name"
+                        required
+                        minLength="2"
+                        maxLength="100"
+                        pattern="[A-Za-z\s\-']+"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">Phone</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        required
+                        pattern="[0-9+\-()\s]{10,20}"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  // Full form for events not listed elsewhere
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Event Title *
+                      </label>
+                      <input
+                        type="text"
+                        name="event-title"
+                        required
+                        minLength="2"
+                        maxLength="100"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-start">
+                      <label className="font-medium text-gray-700">
+                        Event Description *
+                      </label>
+                      <textarea
+                        name="event-description"
+                        required
+                        rows="4"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      ></textarea>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Start Time *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        name="start-time"
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        End Time *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        name="end-time"
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Event Image URL
+                      </label>
+                      <input
+                        type="url"
+                        name="image-url"
+                        placeholder="https://example.com/event-image.jpg"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Upload Event Image
+                      </label>
+                      <input
+                        type="file"
+                        name="event-image"
+                        accept="image/*"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Town *
+                      </label>
+                      <select
+                        name="town"
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select a town</option>
+                        {towns.map((town) => (
+                          <option key={town} value={town}>
+                            {town}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Cost *
+                      </label>
+                      <input
+                        type="text"
+                        name="cost"
+                        required
+                        placeholder="e.g., Free, $20, $50-100"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Address *
+                      </label>
+                      <input
+                        type="text"
+                        name="address"
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Category *
+                      </label>
+                      <select
+                        name="category"
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select a category</option>
+                        {categories.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Registration URL
+                      </label>
+                      <input
+                        type="url"
+                        name="registration-url"
+                        placeholder="e.g., Eventbrite link"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Contact Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="contact-name"
+                        required
+                        minLength="2"
+                        maxLength="100"
+                        pattern="[A-Za-z\s\-']+"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Phone *
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        required
+                        pattern="[0-9+\-()\s]{10,20}"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-6 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={resetFlow}
+                    className="text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors duration-300"
+                  >
+                    ← Start Over
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Event"}
+                  </button>
+                </div>
+              </form>
+
+              {showThankYou && (
+                <div
+                  id="thank-you-message"
+                  className="mt-8 p-6 bg-green-50 text-green-800 rounded-lg text-center border border-green-200 transform transition-all duration-500 ease-in-out animate-fade-in"
+                  style={{
+                    animation: "fadeIn 0.5s ease-in-out",
+                    boxShadow:
+                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                  }}
+                >
+                  <div className="flex items-center justify-center mb-3">
+                    <svg
+                      className="w-8 h-8 text-green-500 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    <h3 className="text-xl font-bold">Thank You!</h3>
+                  </div>
+                  <p className="text-green-700">
+                    We've received your event listing request and will get back
+                    to you shortly.
+                  </p>
+                </div>
+              )}
+
+              <style jsx>{`
+                @keyframes fadeIn {
+                  from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: translateY(0);
+                  }
+                }
+                .animate-fade-in {
+                  animation: fadeIn 0.5s ease-in-out;
+                }
+              `}</style>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
