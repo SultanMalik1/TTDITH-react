@@ -29,12 +29,43 @@ const Breadcrumbs = ({ items = [] }) => {
       else if (segment === "sponsor") name = "Become a Sponsor"
       else if (segment === "sponsors") name = "Sponsors"
       else if (segment === "event") name = "Event Details"
+      else if (segment === "towns") name = "Towns"
+      else if (segment === "date") name = "Date"
       else {
-        // Capitalize and format other segments
-        name = segment
-          .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ")
+        // Handle town slugs and other segments
+        if (pathSegments[0] === "towns" && index === 1) {
+          // Convert town slug to readable name
+          name = segment
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")
+        } else if (pathSegments[0] === "categories" && index === 1) {
+          // Category name
+          name = segment
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")
+        } else if (
+          pathSegments[0] === "events" &&
+          pathSegments[1] === "date" &&
+          index === 2
+        ) {
+          // Date format
+          const [year, month, day] = segment.split("-")
+          const date = new Date(year, month - 1, day)
+          name = date.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        } else {
+          // Capitalize and format other segments
+          name = segment
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")
+        }
       }
 
       breadcrumbs.push({

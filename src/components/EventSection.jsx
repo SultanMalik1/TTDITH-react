@@ -1,6 +1,7 @@
 // src/components/EventSection.jsx
 import React from "react"
 import EventCard from "./EventCard"
+import Pagination from "./Pagination"
 
 export default function EventSection({
   title,
@@ -11,6 +12,8 @@ export default function EventSection({
   currentPage = 1,
   totalPages = 1,
   onPageChange,
+  totalEvents = 0,
+  eventsPerPage = 9,
 }) {
   return (
     <div className="mb-12">
@@ -29,6 +32,15 @@ export default function EventSection({
         )}
       </div>
 
+      {/* Results count */}
+      {showPagination && totalEvents > 0 && (
+        <div className="mb-4 text-sm text-gray-600">
+          Showing {(currentPage - 1) * eventsPerPage + 1} to{" "}
+          {Math.min(currentPage * eventsPerPage, totalEvents)} of {totalEvents}{" "}
+          events
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {events.map((event) => (
           <EventCard key={event.id} event={event} />
@@ -36,24 +48,12 @@ export default function EventSection({
       </div>
 
       {showPagination && totalPages > 1 && (
-        <div className="flex justify-center mt-8 gap-2">
-          <button
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 border rounded disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="px-4 py-2">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 border rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+        <div className="mt-8">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+          />
         </div>
       )}
     </div>

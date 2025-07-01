@@ -279,7 +279,9 @@ export default function HomePage() {
   }
 
   const handleTownClick = (town) => {
-    navigate(`/events/1?town=${encodeURIComponent(town)}`)
+    // Convert town name to slug format
+    const townSlug = town.toLowerCase().replace(/\s+/g, "-")
+    navigate(`/towns/${townSlug}?page=1`)
   }
 
   if (loading) return <Loader />

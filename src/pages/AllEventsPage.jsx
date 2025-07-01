@@ -68,6 +68,8 @@ export default function AllEventsPage() {
       if (!error) {
         setEvents(data)
         setTotalEvents(count)
+      } else {
+        console.error("Database error:", error)
       }
       setLoading(false)
     }
@@ -78,8 +80,24 @@ export default function AllEventsPage() {
 
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams(searchParams)
-    params.set("page", newPage)
     navigate(`/events/${newPage}?${params.toString()}`)
+  }
+
+  const handleTownFilter = (selectedTown) => {
+    const params = new URLSearchParams()
+    params.set("town", selectedTown)
+    navigate(`/events/1?${params.toString()}`)
+  }
+
+  const handleTodayFilter = () => {
+    const params = new URLSearchParams()
+    params.set("today", "true")
+    if (town) params.set("town", town)
+    navigate(`/events/1?${params.toString()}`)
+  }
+
+  const clearFilters = () => {
+    navigate("/events/1")
   }
 
   // Generate SEO title and description based on filters
@@ -123,6 +141,7 @@ export default function AllEventsPage() {
         title={getSEOTitle()}
         description={getSEODescription()}
         keywords={getSEOKeywords()}
+        url="/events"
       />
 
       <div className="max-w-7xl mx-auto px-4 py-10">
@@ -139,34 +158,64 @@ export default function AllEventsPage() {
               : "All Events"}
           </h1>
 
-          {/* Filter indicators */}
-          {(town || today === "true") && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {today === "true" && (
-                <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
-                  🔥 Today Only
-                </span>
-              )}
-              {town && (
-                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-                  📍 {town}
-                </span>
-              )}
+          {/* Filter indicators and controls */}
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            {today === "true" && (
+              <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+                🔥 Today Only
+              </span>
+            )}
+            {town && (
+              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                📍 {town}
+              </span>
+            )}
+
+            {/* Filter buttons */}
+            <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => navigate("/events/1")}
-                className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
+                onClick={handleTodayFilter}
+                className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-orange-200 transition-colors"
               >
-                Clear Filters
+                🔥 Show Today's Events
               </button>
+
+              {(town || today === "true") && (
+                <button
+                  onClick={clearFilters}
+                  className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Quick town filters */}
+          {!town && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                Quick filters:
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "East Hampton",
+                  "Southampton",
+                  "Montauk",
+                  "Sag Harbor",
+                  "Bridgehampton",
+                ].map((townName) => (
+                  <button
+                    key={townName}
+                    onClick={() => handleTownFilter(townName)}
+                    className="bg-white border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                  >
+                    {townName}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
-
-          {/* Results count */}
-          <p className="text-gray-600">
-            Showing {events.length} of {totalEvents} events
-            {today === "true" && " happening today"}
-            {town && ` in ${town}`}
-          </p>
         </div>
 
         <EventSection
@@ -176,6 +225,8 @@ export default function AllEventsPage() {
           currentPage={parseInt(page)}
           totalPages={totalPages}
           onPageChange={handlePageChange}
+          totalEvents={totalEvents}
+          eventsPerPage={EVENTS_PER_PAGE}
         />
 
         {/* No events message */}
@@ -194,7 +245,7 @@ export default function AllEventsPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => navigate("/events/1")}
+                onClick={clearFilters}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
               >
                 Browse All Events
