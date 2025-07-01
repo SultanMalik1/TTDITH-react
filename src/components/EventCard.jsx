@@ -21,6 +21,20 @@ const EventCard = ({ event }) => {
     })
   }
 
+  // Check if event is happening today
+  const isEventToday = (eventDate) => {
+    const today = new Date()
+    const eventDateObj = new Date(eventDate)
+
+    return (
+      today.getFullYear() === eventDateObj.getFullYear() &&
+      today.getMonth() === eventDateObj.getMonth() &&
+      today.getDate() === eventDateObj.getDate()
+    )
+  }
+
+  const isToday = isEventToday(event.start_time)
+
   return (
     <Link to={`/event/${event.slug}`} className="block h-full">
       <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200 cursor-pointer h-full flex flex-col">
@@ -57,6 +71,15 @@ const EventCard = ({ event }) => {
               {formatDate(event.start_time)}
             </div>
           </div>
+
+          {/* Today Badge - Show prominently if event is today */}
+          {isToday && (
+            <div className="absolute top-3 left-1/2 transform -translate-x-1/2">
+              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm animate-pulse">
+                🔥 TODAY
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -71,6 +94,16 @@ const EventCard = ({ event }) => {
             <span className="mr-3">🕒 {formatTime(event.start_time)}</span>
             {event.town && <span>📍 {event.town}</span>}
           </div>
+
+          {/* Today indicator in description */}
+          {isToday && (
+            <div className="mb-2">
+              <span className="inline-flex items-center bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-medium">
+                <span className="mr-1">⚡</span>
+                Happening Today!
+              </span>
+            </div>
+          )}
 
           {/* Description */}
           <p className="text-gray-700 text-sm mb-4 flex-grow min-h-[4.5rem]">

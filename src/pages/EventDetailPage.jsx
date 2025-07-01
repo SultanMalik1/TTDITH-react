@@ -8,6 +8,7 @@ export default function EventDetailPage() {
   const { slug } = useParams()
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
 
   useEffect(() => {
     async function fetchEvent() {
@@ -61,6 +62,75 @@ export default function EventDetailPage() {
     }
   }
 
+  // Function to truncate text to 4 lines
+  const truncateToLines = (text, lines = 4) => {
+    const words = text.split(" ")
+    const lineHeight = 1.5 // Approximate line height in rem
+    const maxHeight = lines * lineHeight
+
+    // Create a temporary element to measure text height
+    const temp = document.createElement("div")
+    temp.style.cssText = `
+      position: absolute;
+      visibility: hidden;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: ${lineHeight}rem;
+      font-size: 1rem;
+      max-width: 100%;
+    `
+    temp.textContent = text
+    document.body.appendChild(temp)
+
+    const fullHeight = temp.scrollHeight
+    document.body.removeChild(temp)
+
+    if (fullHeight <= maxHeight * 16) {
+      // Convert rem to px (16px base)
+      return { text, isTruncated: false }
+    }
+
+    // Binary search to find the right number of words
+    let start = 0
+    let end = words.length
+    let result = words.slice(0, Math.floor(words.length * 0.7)).join(" ") // Start with 70%
+
+    while (start <= end) {
+      const mid = Math.floor((start + end) / 2)
+      const testText = words.slice(0, mid).join(" ")
+
+      temp.style.cssText = `
+        position: absolute;
+        visibility: hidden;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: ${lineHeight}rem;
+        font-size: 1rem;
+        max-width: 100%;
+      `
+      temp.textContent = testText
+      document.body.appendChild(temp)
+
+      const testHeight = temp.scrollHeight
+      document.body.removeChild(temp)
+
+      if (
+        testHeight <= maxHeight * 16 &&
+        testHeight > (maxHeight - lineHeight) * 16
+      ) {
+        result = testText
+        break
+      } else if (testHeight > maxHeight * 16) {
+        end = mid - 1
+      } else {
+        start = mid + 1
+        result = testText
+      }
+    }
+
+    return { text: result, isTruncated: true }
+  }
+
   if (loading) return <Loader />
   if (!event) return <div className="text-center py-20">Event not found.</div>
 
@@ -76,6 +146,10 @@ export default function EventDetailPage() {
     minute: "2-digit",
     timeZone: "America/New_York",
   })
+
+  const { text: truncatedText, isTruncated } = truncateToLines(
+    event.description
+  )
 
   return (
     <>
@@ -171,7 +245,7 @@ export default function EventDetailPage() {
                 >
                   <path
                     fillRule="evenodd"
-                    d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+                    d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.630.771-1.630 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
                     clipRule="evenodd"
                   />
                 </svg>
@@ -237,13 +311,55 @@ export default function EventDetailPage() {
           </div>
         )}
 
-        {/* Event Description */}
+        {/* Event Description with Interactive Truncation */}
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-gray-900">
             Event Description
           </h2>
-          <div className="prose prose-lg max-w-none">
-            <p className="text-gray-800 leading-relaxed">{event.description}</p>
+          <div className="relative">
+            <div
+              className={`prose prose-lg max-w-none transition-all duration-300 ease-in-out ${
+                !isDescriptionExpanded ? "overflow-hidden" : ""
+              }`}
+              style={{
+                maxHeight: !isDescriptionExpanded ? "6rem" : "none",
+                lineHeight: "1.5rem",
+              }}
+            >
+              <p className="text-gray-800 leading-relaxed m-0">
+                {!isDescriptionExpanded ? truncatedText : event.description}
+              </p>
+            </div>
+
+            {/* Gradient overlay for truncated text */}
+            {!isDescriptionExpanded && isTruncated && (
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+            )}
+
+            {/* Read More/Less Button */}
+            {isTruncated && (
+              <button
+                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 group"
+              >
+                <span>{isDescriptionExpanded ? "Show Less" : "Read More"}</span>
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${
+                    isDescriptionExpanded ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
 
