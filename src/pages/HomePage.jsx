@@ -319,8 +319,9 @@ export default function HomePage() {
         <div className="text-center mb-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8">
           <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
             Your complete guide to events, activities, and attractions across
-            the Hamptons. From East Hampton to Montauk, discover the best things
-            to do today and this weekend.
+            the Hamptons. Explore East Hampton, Southampton, Sag Harbor,
+            Montauk, and every unique village in between—find the best things to
+            do today and this weekend.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <button

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { useParams, useNavigate, useSearchParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabaseClient"
 import EventSection from "../components/EventSection"
 import Loader from "../components/Loader"
@@ -69,16 +69,13 @@ const TOWN_INFO = {
 }
 
 export default function TownPage() {
-  const { townSlug } = useParams()
+  const { townSlug, page = 1 } = useParams()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [totalEvents, setTotalEvents] = useState(0)
 
-  const page = parseInt(searchParams.get("page") || "1")
-  const today = searchParams.get("today")
-
+  const today = new URLSearchParams(window.location.search).get("today")
   const townInfo = TOWN_INFO[townSlug]
   const townName = townInfo?.name || townSlug
 
@@ -86,7 +83,7 @@ export default function TownPage() {
     async function fetchEvents() {
       setLoading(true)
       const now = new Date().toISOString()
-      const start = (page - 1) * EVENTS_PER_PAGE
+      const start = (parseInt(page) - 1) * EVENTS_PER_PAGE
       const end = start + EVENTS_PER_PAGE - 1
 
       let query = supabase
@@ -127,20 +124,21 @@ export default function TownPage() {
   const totalPages = Math.ceil(totalEvents / EVENTS_PER_PAGE)
 
   const handlePageChange = (newPage) => {
-    const params = new URLSearchParams(searchParams)
-    params.set("page", newPage)
-    navigate(`/towns/${townSlug}?${params.toString()}`)
+    const params = new URLSearchParams()
+    if (today === "true") params.set("today", "true")
+    navigate(
+      `/towns/${townSlug}/${newPage}${
+        params.toString() ? `?${params.toString()}` : ""
+      }`
+    )
   }
 
   const handleTodayFilter = () => {
-    const params = new URLSearchParams()
-    params.set("today", "true")
-    params.set("page", "1")
-    navigate(`/towns/${townSlug}?${params.toString()}`)
+    navigate(`/towns/${townSlug}/1?today=true`)
   }
 
   const clearFilters = () => {
-    navigate(`/towns/${townSlug}?page=1`)
+    navigate(`/towns/${townSlug}/1`)
   }
 
   // Generate SEO content
@@ -280,7 +278,7 @@ export default function TownPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => navigate("/events?page=1")}
+                onClick={() => navigate("/events/1")}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
               >
                 Browse All Events
@@ -307,7 +305,7 @@ export default function TownPage() {
               .map(([slug, info]) => (
                 <button
                   key={slug}
-                  onClick={() => navigate(`/towns/${slug}?page=1`)}
+                  onClick={() => navigate(`/towns/${slug}/1`)}
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all text-left"
                 >
                   <h4 className="font-semibold text-gray-900 mb-1">
