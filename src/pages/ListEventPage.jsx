@@ -61,32 +61,84 @@ const ListEventPage = () => {
     const formData = new FormData(form)
 
     try {
-      let imageUrl = formData.get("image-url") || null
+      // Test storage bucket access
+      console.log("Testing storage bucket access...")
+      const { data: buckets, error: bucketError } =
+        await supabase.storage.listBuckets()
+      console.log("Available buckets:", buckets)
+      console.log(
+        "Bucket names:",
+        buckets?.map((b) => b.name)
+      )
+      if (bucketError) {
+        console.error("Bucket list error:", bucketError)
+      }
+
+      // Check if pending-images bucket exists
+      const pendingImagesBucket = buckets?.find(
+        (bucket) => bucket.name === "pending-images"
+      )
+      console.log("Pending images bucket:", pendingImagesBucket)
+
+      if (!pendingImagesBucket) {
+        console.error(
+          "Available buckets:",
+          buckets?.map((b) => b.name)
+        )
+        throw new Error(
+          "Storage bucket 'pending-images' not found. Please create this bucket in your Supabase dashboard under Storage section."
+        )
+      }
+      let imageUrl = null
 
       // Handle image upload if provided
       const imageFile = formData.get("event-image")
       if (imageFile && imageFile.size > 0) {
         const fileExt = imageFile.name.split(".").pop()
         const fileName = `${Date.now()}.${fileExt}`
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("pending-events")
-          .upload(fileName, imageFile)
+
+        // Try to upload with current session, if it fails, try without auth
+        let uploadData, uploadError
+
+        try {
+          console.log("Attempting to upload file:", fileName)
+          console.log("File size:", imageFile.size)
+          console.log("File type:", imageFile.type)
+
+          const result = await supabase.storage
+            .from("pending-images")
+            .upload(fileName, imageFile)
+          uploadData = result.data
+          uploadError = result.error
+
+          console.log("Upload result:", result)
+        } catch (error) {
+          console.error("Upload exception:", error)
+          uploadError = error
+        }
 
         if (uploadError) {
-          throw new Error("Failed to upload image: " + uploadError.message)
+          console.error("Upload error details:", uploadError)
+          console.error("Error message:", uploadError.message)
+          console.error("Error details:", uploadError.details)
+          throw new Error(
+            `Failed to upload image: ${
+              uploadError.message || "Unknown error"
+            }. Please try again or contact support.`
+          )
         }
 
         // Get the public URL for the uploaded image
         const {
           data: { publicUrl },
-        } = supabase.storage.from("pending-events").getPublicUrl(fileName)
+        } = supabase.storage.from("pending-images").getPublicUrl(fileName)
 
         imageUrl = publicUrl
       }
 
-      // Validate that either image_url or image file is provided
-      if (!imageUrl && !imageFile) {
-        throw new Error("Please provide either an image URL or upload an image")
+      // Validate that image file is provided for all submissions
+      if (!imageFile || imageFile.size === 0) {
+        throw new Error("Please upload an event image")
       }
 
       if (hasListedElsewhere === "yes") {
@@ -120,15 +172,16 @@ const ListEventPage = () => {
           town: formData.get("town"),
           cost: formData.get("cost"),
           address: formData.get("address"),
-          category: formData.get("category"),
+          category:
+            selectedPromotion === "premium"
+              ? "Featured"
+              : formData.get("category"),
           registration_url: formData.get("registration-url") || null,
           contact_name: formData.get("contact-name"),
           email: formData.get("email"),
           phone: formData.get("phone"),
           status: "pending",
           headline_type: "normal",
-          promotion_type:
-            selectedPromotion === "premium" ? "main-featured" : "free-listing",
         }
 
         const { data, error: insertError } = await supabase
@@ -495,18 +548,6 @@ const ListEventPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
                       <label className="font-medium text-gray-700">
-                        Event Image URL (optional)
-                      </label>
-                      <input
-                        type="url"
-                        name="image-url"
-                        placeholder="https://example.com/event-image.jpg"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                      <label className="font-medium text-gray-700">
                         Upload Event Image*
                       </label>
                       <input
@@ -660,23 +701,12 @@ const ListEventPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
                       <label className="font-medium text-gray-700">
-                        Event Image URL
-                      </label>
-                      <input
-                        type="url"
-                        name="image-url"
-                        placeholder="https://example.com/event-image.jpg"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
-                      <label className="font-medium text-gray-700">
-                        Upload Event Image
+                        Upload Event Image *
                       </label>
                       <input
                         type="file"
                         name="event-image"
+                        required
                         accept="image/*"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
