@@ -85,8 +85,11 @@ const ListEventPage = () => {
           "Available buckets:",
           buckets?.map((b) => b.name)
         )
+        console.error("Total buckets found:", buckets?.length || 0)
         throw new Error(
-          "Storage bucket 'pending-images' not found. Please create this bucket in your Supabase dashboard under Storage section."
+          `Storage bucket 'pending-images' not found. Available buckets: ${
+            buckets?.map((b) => b.name).join(", ") || "none"
+          }. Please create this bucket in your Supabase dashboard under Storage section.`
         )
       }
       let imageUrl = null
@@ -182,6 +185,9 @@ const ListEventPage = () => {
           phone: formData.get("phone"),
           status: "pending",
           headline_type: "normal",
+          url: `user-submitted-${Date.now()}-${Math.random()
+            .toString(36)
+            .substr(2, 9)}`,
         }
 
         const { data, error: insertError } = await supabase
