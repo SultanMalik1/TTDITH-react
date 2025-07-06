@@ -1,6 +1,6 @@
 import { Resend } from "resend"
 
-const resend = new Resend("re_9eQ7USZd_P5HvQUBhY3K7zN6rdCpSmMyi")
+const resend = new Resend("re_XTbmfk8t_7Je2vE3E2P8eEbpQi6akUXmt")
 
 export const handler = async (event, context) => {
   console.log("Function called with method:", event.httpMethod)
@@ -27,7 +27,7 @@ export const handler = async (event, context) => {
 
     console.log("Attempting to send email to:", email)
     const { data, error } = await resend.emails.send({
-      from: "Things to Do in the Hamptons <noreply@thingstodointhehamptons.com>",
+      from: "noreply@resend.dev",
       to: [email],
       subject: "Verify Your Event Submission - Things to Do in the Hamptons",
       html: `
@@ -51,11 +51,16 @@ export const handler = async (event, context) => {
 
     if (error) {
       console.error("Resend error:", error)
+      console.error("Error details:", JSON.stringify(error, null, 2))
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: "Failed to send email" }),
+        body: JSON.stringify({
+          error: "Failed to send email: " + error.message,
+        }),
       }
     }
+
+    console.log("Email sent successfully! Message ID:", data.id)
 
     return {
       statusCode: 200,
