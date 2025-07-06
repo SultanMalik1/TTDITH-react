@@ -5,6 +5,7 @@ const ListEventPage = () => {
   const [showThankYou, setShowThankYou] = useState(false)
   const [showVerification, setShowVerification] = useState(false)
   const [verificationCode, setVerificationCode] = useState("")
+  const [generatedCode, setGeneratedCode] = useState("") // Store the generated code to display
   const [submittedEventId, setSubmittedEventId] = useState(null)
   const [submittedEventType, setSubmittedEventType] = useState(null) // 'scraped' or 'user_submitted'
   const [selectedPromotion, setSelectedPromotion] = useState("")
@@ -163,6 +164,7 @@ const ListEventPage = () => {
 
         // Generate verification code for scraped events
         const verificationCode = generateVerificationCode()
+        setGeneratedCode(verificationCode) // Store for display
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
 
         // Add verification data to scraped event
@@ -178,22 +180,26 @@ const ListEventPage = () => {
           throw new Error("Failed to submit event: " + scrapedError.message)
         }
 
-        // Send verification email for scraped event
+        // Store the scraped event ID and type for verification
+        setSubmittedEventId(scrapedData[0].id)
+        setSubmittedEventType("scraped")
+
+        // Try to send verification email for scraped event
         console.log("Sending verification email for scraped event...")
         console.log("Email:", formData.get("email"))
         console.log("Code:", verificationCode)
 
-        await sendVerificationEmail(
-          formData.get("email"),
-          verificationCode,
-          "Your Event Submission" // Generic title since we don't have event title for scraped events
-        )
-
-        console.log("Verification email sent successfully for scraped event")
-
-        // Store the scraped event ID and type for verification
-        setSubmittedEventId(scrapedData[0].id)
-        setSubmittedEventType("scraped")
+        try {
+          await sendVerificationEmail(
+            formData.get("email"),
+            verificationCode,
+            "Your Event Submission" // Generic title since we don't have event title for scraped events
+          )
+          console.log("Verification email sent successfully for scraped event")
+        } catch (emailError) {
+          console.error("Email sending failed:", emailError)
+          // Don't throw error - still show verification UI
+        }
       } else {
         // For new events - insert into user_submitted_events table
         const eventData = {
@@ -222,6 +228,7 @@ const ListEventPage = () => {
 
         // Generate verification code
         const verificationCode = generateVerificationCode()
+        setGeneratedCode(verificationCode) // Store for display
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
 
         // Add verification data to event
@@ -237,25 +244,29 @@ const ListEventPage = () => {
           throw new Error("Failed to submit event: " + insertError.message)
         }
 
-        // Send verification email
+        // Store the event ID and type for verification
+        setSubmittedEventId(data[0].id)
+        setSubmittedEventType("user_submitted")
+
+        // Try to send verification email
         console.log("Sending verification email for user submitted event...")
         console.log("Email:", formData.get("email"))
         console.log("Code:", verificationCode)
         console.log("Title:", formData.get("event-title"))
 
-        await sendVerificationEmail(
-          formData.get("email"),
-          verificationCode,
-          formData.get("event-title")
-        )
-
-        console.log(
-          "Verification email sent successfully for user submitted event"
-        )
-
-        // Store the event ID and type for verification
-        setSubmittedEventId(data[0].id)
-        setSubmittedEventType("user_submitted")
+        try {
+          await sendVerificationEmail(
+            formData.get("email"),
+            verificationCode,
+            formData.get("event-title")
+          )
+          console.log(
+            "Verification email sent successfully for user submitted event"
+          )
+        } catch (emailError) {
+          console.error("Email sending failed:", emailError)
+          // Don't throw error - still show verification UI
+        }
       }
 
       // Success - show verification page
@@ -394,6 +405,7 @@ const ListEventPage = () => {
     setShowForm(false)
     setShowVerification(false)
     setVerificationCode("")
+    setGeneratedCode("")
     setSubmittedEventId(null)
     setSubmittedEventType(null)
     setError("")
@@ -1023,6 +1035,12 @@ const ListEventPage = () => {
 
               {showVerification && (
                 <div className="mt-8 p-6 bg-blue-50 text-blue-800 rounded-lg text-center border border-blue-200">
+                  {/* Debug info */}
+                  <div className="text-xs text-gray-500 mb-2">
+                    Debug: generatedCode = "{generatedCode}", submittedEventId ={" "}
+                    {submittedEventId}, submittedEventType ={" "}
+                    {submittedEventType}
+                  </div>
                   <div className="flex items-center justify-center mb-3">
                     <svg
                       className="w-8 h-8 text-blue-500 mr-2"
@@ -1042,6 +1060,10 @@ const ListEventPage = () => {
                   <p className="text-blue-700 mb-4">
                     We've sent a verification code to your email address. Please
                     enter it below to complete your event submission.
+                  </p>
+                  <p className="text-sm text-blue-600 mb-4">
+                    If you don't see the email, check your spam folder. The
+                    verification code is: <strong>{generatedCode}</strong>
                   </p>
 
                   <div className="max-w-md mx-auto">
