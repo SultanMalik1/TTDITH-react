@@ -1,8 +1,8 @@
-const { Resend } = require("resend")
+import { Resend } from "resend"
 
 const resend = new Resend("re_9eQ7USZd_P5HvQUBhY3K7zN6rdCpSmMyi")
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   console.log("Function called with method:", event.httpMethod)
   console.log("Function body:", event.body)
 
