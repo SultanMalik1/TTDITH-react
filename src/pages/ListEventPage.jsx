@@ -179,11 +179,17 @@ const ListEventPage = () => {
         }
 
         // Send verification email for scraped event
+        console.log("Sending verification email for scraped event...")
+        console.log("Email:", formData.get("email"))
+        console.log("Code:", verificationCode)
+
         await sendVerificationEmail(
           formData.get("email"),
           verificationCode,
           "Your Event Submission" // Generic title since we don't have event title for scraped events
         )
+
+        console.log("Verification email sent successfully for scraped event")
 
         // Store the scraped event ID and type for verification
         setSubmittedEventId(scrapedData[0].id)
@@ -232,10 +238,19 @@ const ListEventPage = () => {
         }
 
         // Send verification email
+        console.log("Sending verification email for user submitted event...")
+        console.log("Email:", formData.get("email"))
+        console.log("Code:", verificationCode)
+        console.log("Title:", formData.get("event-title"))
+
         await sendVerificationEmail(
           formData.get("email"),
           verificationCode,
           formData.get("event-title")
+        )
+
+        console.log(
+          "Verification email sent successfully for user submitted event"
         )
 
         // Store the event ID and type for verification
@@ -244,9 +259,12 @@ const ListEventPage = () => {
       }
 
       // Success - show verification page
+      console.log("Form submitted successfully, showing verification page")
       form.reset()
       setShowVerification(true)
       setShowForm(false)
+      console.log("showVerification set to:", true)
+      console.log("showForm set to:", false)
     } catch (error) {
       console.error("Form submission error:", error)
       setError(error.message)
