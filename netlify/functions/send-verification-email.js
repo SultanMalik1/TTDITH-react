@@ -3,6 +3,9 @@ const { Resend } = require("resend")
 const resend = new Resend("re_9eQ7USZd_P5HvQUBhY3K7zN6rdCpSmMyi")
 
 exports.handler = async (event, context) => {
+  console.log("Function called with method:", event.httpMethod)
+  console.log("Function body:", event.body)
+
   // Only allow POST requests
   if (event.httpMethod !== "POST") {
     return {
@@ -13,6 +16,7 @@ exports.handler = async (event, context) => {
 
   try {
     const { email, verificationCode, eventTitle } = JSON.parse(event.body)
+    console.log("Parsed data:", { email, verificationCode, eventTitle })
 
     if (!email || !verificationCode || !eventTitle) {
       return {
@@ -21,6 +25,7 @@ exports.handler = async (event, context) => {
       }
     }
 
+    console.log("Attempting to send email to:", email)
     const { data, error } = await resend.emails.send({
       from: "Things to Do in the Hamptons <noreply@thingstodointhehamptons.com>",
       to: [email],
