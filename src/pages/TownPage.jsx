@@ -69,13 +69,17 @@ const TOWN_INFO = {
 }
 
 export default function TownPage() {
-  const { townSlug, page = 1 } = useParams()
+  const { townSlug, page: pathPage } = useParams()
   const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [totalEvents, setTotalEvents] = useState(0)
 
-  const today = new URLSearchParams(window.location.search).get("today")
+  // Handle both query parameter and path parameter for page
+  const queryParams = new URLSearchParams(window.location.search)
+  const queryPage = queryParams.get("page")
+  const page = parseInt(pathPage || queryPage || 1)
+  const today = queryParams.get("today")
   const townInfo = TOWN_INFO[townSlug]
   const townName = townInfo?.name || townSlug
 
@@ -86,29 +90,35 @@ export default function TownPage() {
       const start = (parseInt(page) - 1) * EVENTS_PER_PAGE
       const end = start + EVENTS_PER_PAGE - 1
 
-      let query = supabase
-        .from("events")
-        .select("*")
-        .eq("town", townName)
-        .gt("start_time", now)
-
-      // Add today filter if specified
+      // Build filters
+      let filters = [
+        ["town", "eq", townName],
+        ["start_time", "gt", now],
+      ]
       if (today === "true") {
         const todayStart = new Date()
         todayStart.setHours(0, 0, 0, 0)
         const todayEnd = new Date()
         todayEnd.setHours(23, 59, 59, 999)
-
-        query = query
-          .gte("start_time", todayStart.toISOString())
-          .lte("start_time", todayEnd.toISOString())
+        filters.push(["start_time", "gte", todayStart.toISOString()])
+        filters.push(["start_time", "lte", todayEnd.toISOString()])
       }
 
-      // Fetch total count
-      const { count } = await query.select("*", { count: "exact", head: true })
+      // Fetch total count (separate query)
+      let countQuery = supabase
+        .from("events")
+        .select("*", { count: "exact", head: true })
+      filters.forEach(([col, op, val]) => {
+        countQuery = countQuery[op](col, val)
+      })
+      const { count } = await countQuery
 
-      // Fetch paginated events
-      const { data, error } = await query
+      // Fetch paginated events (separate query)
+      let dataQuery = supabase.from("events").select("*")
+      filters.forEach(([col, op, val]) => {
+        dataQuery = dataQuery[op](col, val)
+      })
+      const { data, error } = await dataQuery
         .order("start_time", { ascending: true })
         .range(start, end)
 
@@ -123,22 +133,24 @@ export default function TownPage() {
 
   const totalPages = Math.ceil(totalEvents / EVENTS_PER_PAGE)
 
+  // Debug pagination values
+  console.log(
+    `Pagination Debug - totalEvents: ${totalEvents}, EVENTS_PER_PAGE: ${EVENTS_PER_PAGE}, totalPages: ${totalPages}, currentPage: ${page}`
+  )
+
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams()
+    params.set("page", newPage.toString())
     if (today === "true") params.set("today", "true")
-    navigate(
-      `/towns/${townSlug}/${newPage}${
-        params.toString() ? `?${params.toString()}` : ""
-      }`
-    )
+    navigate(`/towns/${townSlug}?${params.toString()}`)
   }
 
   const handleTodayFilter = () => {
-    navigate(`/towns/${townSlug}/1?today=true`)
+    navigate(`/towns/${townSlug}?page=1&today=true`)
   }
 
   const clearFilters = () => {
-    navigate(`/towns/${townSlug}/1`)
+    navigate(`/towns/${townSlug}?page=1`)
   }
 
   // Generate SEO content
@@ -257,7 +269,7 @@ export default function TownPage() {
           title=""
           events={events}
           showPagination={true}
-          currentPage={page}
+          currentPage={parseInt(page)}
           totalPages={totalPages}
           onPageChange={handlePageChange}
           totalEvents={totalEvents}
@@ -305,7 +317,7 @@ export default function TownPage() {
               .map(([slug, info]) => (
                 <button
                   key={slug}
-                  onClick={() => navigate(`/towns/${slug}/1`)}
+                  onClick={() => navigate(`/towns/${slug}?page=1`)}
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all text-left"
                 >
                   <h4 className="font-semibold text-gray-900 mb-1">

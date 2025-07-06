@@ -251,7 +251,13 @@ export default function HomePage() {
         .select("*")
         .gt("start_time", now)
         .order("start_time", { ascending: true })
-      if (!error) setEvents(data)
+      if (!error) {
+        // Filter out Library and Government events
+        const filtered = data.filter(
+          (e) => e.category !== "Library" && e.category !== "Government"
+        )
+        setEvents(filtered)
+      }
       setLoading(false)
     }
     fetchEvents()
@@ -342,11 +348,11 @@ export default function HomePage() {
         {/* Today's Events Section */}
         {todaysEvents.length > 0 && (
           <div className="mb-12">
-            <div className="flex items-center mb-6">
-              <h2 className="text-3xl font-bold text-gray-900">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 🔥 Events Happening Today
               </h2>
-              <span className="ml-3 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+              <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium self-start sm:self-auto">
                 {todaysEvents.length} events
               </span>
             </div>

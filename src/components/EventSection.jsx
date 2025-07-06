@@ -15,6 +15,10 @@ export default function EventSection({
   totalEvents = 0,
   eventsPerPage = 9,
 }) {
+  // Debug EventSection props
+  console.log(
+    `EventSection Debug - showPagination: ${showPagination}, currentPage: ${currentPage}, totalPages: ${totalPages}, totalEvents: ${totalEvents}`
+  )
   return (
     <div className="mb-12">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
@@ -23,10 +27,12 @@ export default function EventSection({
           <div className="flex justify-end">
             <button
               onClick={onButtonClick}
-              className="bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition-colors flex items-center gap-2 text-center focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 min-w-fit"
+              className="group inline-flex items-center justify-center px-7 py-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-lg shadow-md hover:from-blue-700 hover:to-blue-600 hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
             >
               {buttonLabel}
-              <span aria-hidden="true">→</span>
+              <span className="ml-2 text-xl transition-transform group-hover:translate-x-1">
+                →
+              </span>
             </button>
           </div>
         )}

@@ -38,30 +38,35 @@ export default function AllEventsPage() {
       const start = (parseInt(page) - 1) * EVENTS_PER_PAGE
       const end = start + EVENTS_PER_PAGE - 1
 
-      let query = supabase.from("events").select("*").gt("start_time", now)
-
-      // Add town filter if specified
+      // Build filters
+      let filters = [["start_time", "gt", now]]
       if (town) {
-        query = query.eq("town", town)
+        filters.push(["town", "eq", town])
       }
-
-      // Add today filter if specified
       if (today === "true") {
         const todayStart = new Date()
         todayStart.setHours(0, 0, 0, 0)
         const todayEnd = new Date()
         todayEnd.setHours(23, 59, 59, 999)
-
-        query = query
-          .gte("start_time", todayStart.toISOString())
-          .lte("start_time", todayEnd.toISOString())
+        filters.push(["start_time", "gte", todayStart.toISOString()])
+        filters.push(["start_time", "lte", todayEnd.toISOString()])
       }
 
-      // Fetch total count
-      const { count } = await query.select("*", { count: "exact", head: true })
+      // Fetch total count (separate query)
+      let countQuery = supabase
+        .from("events")
+        .select("*", { count: "exact", head: true })
+      filters.forEach(([col, op, val]) => {
+        countQuery = countQuery[op](col, val)
+      })
+      const { count } = await countQuery
 
-      // Fetch paginated events
-      const { data, error } = await query
+      // Fetch paginated events (separate query)
+      let dataQuery = supabase.from("events").select("*")
+      filters.forEach(([col, op, val]) => {
+        dataQuery = dataQuery[op](col, val)
+      })
+      const { data, error } = await dataQuery
         .order("start_time", { ascending: true })
         .range(start, end)
 
@@ -154,8 +159,8 @@ export default function AllEventsPage() {
             {today === "true"
               ? "🔥 Events Happening Today"
               : town
-              ? `Events in ${town}`
-              : "All Events"}
+                ? `Events in ${town}`
+                : "All Events"}
           </h1>
 
           {/* Filter indicators and controls */}
@@ -240,8 +245,8 @@ export default function AllEventsPage() {
               {today === "true"
                 ? "No events are happening today. Check out upcoming events instead!"
                 : town
-                ? `No events found in ${town}. Try browsing all events or check other towns.`
-                : "No events found. Please try adjusting your filters."}
+                  ? `No events found in ${town}. Try browsing all events or check other towns.`
+                  : "No events found. Please try adjusting your filters."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button

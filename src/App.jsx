@@ -71,7 +71,6 @@ function App() {
           />
 
           {/* Town routes - new dedicated town pages */}
-          <Route path="/towns/:townSlug/:page" element={<TownPage />} />
           <Route path="/towns/:townSlug" element={<TownPage />} />
 
           {/* Other pages */}

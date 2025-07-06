@@ -81,7 +81,24 @@ const Footer = () => {
             rights reserved.
           </p>
           <p className="text-gray-500 text-sm italic mt-2">
-            Website built by Santiago Saldivar and Sultan Malik
+            Website built by{" "}
+            <a
+              href="https://www.linkedin.com/in/santiagosaldivar/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 transition-colors duration-300"
+            >
+              Santiago Saldivar
+            </a>{" "}
+            and{" "}
+            <a
+              href="https://www.linkedin.com/in/smalikk/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 transition-colors duration-300"
+            >
+              Sultan Malik
+            </a>
           </p>
         </div>
       </div>
