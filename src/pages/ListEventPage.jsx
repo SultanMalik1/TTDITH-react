@@ -6,6 +6,7 @@ const ListEventPage = () => {
   const [showVerification, setShowVerification] = useState(false)
   const [verificationCode, setVerificationCode] = useState("")
   const [submittedEventId, setSubmittedEventId] = useState(null)
+  const [submittedEventType, setSubmittedEventType] = useState(null) // 'scraped' or 'user_submitted'
   const [selectedPromotion, setSelectedPromotion] = useState("")
   const [hasListedElsewhere, setHasListedElsewhere] = useState(null)
   const [showForm, setShowForm] = useState(false)
@@ -160,6 +161,15 @@ const ListEventPage = () => {
           status: "pending",
         }
 
+        // Generate verification code for scraped events
+        const verificationCode = generateVerificationCode()
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
+
+        // Add verification data to scraped event
+        scrapedEventData.verification_code = verificationCode
+        scrapedEventData.verification_expires_at = expiresAt.toISOString()
+        scrapedEventData.email_verified = false
+
         const { data: scrapedData, error: scrapedError } = await supabase
           .from("scraped_events")
           .insert([scrapedEventData])
@@ -167,6 +177,17 @@ const ListEventPage = () => {
         if (scrapedError) {
           throw new Error("Failed to submit event: " + scrapedError.message)
         }
+
+        // Send verification email for scraped event
+        await sendVerificationEmail(
+          formData.get("email"),
+          verificationCode,
+          "Your Event Submission" // Generic title since we don't have event title for scraped events
+        )
+
+        // Store the scraped event ID and type for verification
+        setSubmittedEventId(scrapedData[0].id)
+        setSubmittedEventType("scraped")
       } else {
         // For new events - insert into user_submitted_events table
         const eventData = {
@@ -217,8 +238,9 @@ const ListEventPage = () => {
           formData.get("event-title")
         )
 
-        // Store the event ID for verification
+        // Store the event ID and type for verification
         setSubmittedEventId(data[0].id)
+        setSubmittedEventType("user_submitted")
       }
 
       // Success - show verification page
@@ -290,9 +312,15 @@ const ListEventPage = () => {
     setError("")
 
     try {
+      // Determine which table to query based on event type
+      const tableName =
+        submittedEventType === "scraped"
+          ? "scraped_events"
+          : "user_submitted_events"
+
       // Verify the code against the database
       const { data, error } = await supabase
-        .from("user_submitted_events")
+        .from(tableName)
         .select("verification_code, verification_expires_at")
         .eq("id", submittedEventId)
         .single()
@@ -317,7 +345,7 @@ const ListEventPage = () => {
 
       // Update the event to verified
       const { error: updateError } = await supabase
-        .from("user_submitted_events")
+        .from(tableName)
         .update({ email_verified: true })
         .eq("id", submittedEventId)
 
@@ -349,6 +377,7 @@ const ListEventPage = () => {
     setShowVerification(false)
     setVerificationCode("")
     setSubmittedEventId(null)
+    setSubmittedEventType(null)
     setError("")
   }
 
