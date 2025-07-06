@@ -90,29 +90,35 @@ export default function TownPage() {
       const start = (parseInt(page) - 1) * EVENTS_PER_PAGE
       const end = start + EVENTS_PER_PAGE - 1
 
-      let query = supabase
-        .from("events")
-        .select("*")
-        .eq("town", townName)
-        .gt("start_time", now)
-
-      // Add today filter if specified
+      // Build filters
+      let filters = [
+        ["town", "eq", townName],
+        ["start_time", "gt", now],
+      ]
       if (today === "true") {
         const todayStart = new Date()
         todayStart.setHours(0, 0, 0, 0)
         const todayEnd = new Date()
         todayEnd.setHours(23, 59, 59, 999)
-
-        query = query
-          .gte("start_time", todayStart.toISOString())
-          .lte("start_time", todayEnd.toISOString())
+        filters.push(["start_time", "gte", todayStart.toISOString()])
+        filters.push(["start_time", "lte", todayEnd.toISOString()])
       }
 
-      // Fetch total count
-      const { count } = await query.select("*", { count: "exact", head: true })
+      // Fetch total count (separate query)
+      let countQuery = supabase
+        .from("events")
+        .select("*", { count: "exact", head: true })
+      filters.forEach(([col, op, val]) => {
+        countQuery = countQuery[op](col, val)
+      })
+      const { count } = await countQuery
 
-      // Fetch paginated events
-      const { data, error } = await query
+      // Fetch paginated events (separate query)
+      let dataQuery = supabase.from("events").select("*")
+      filters.forEach(([col, op, val]) => {
+        dataQuery = dataQuery[op](col, val)
+      })
+      const { data, error } = await dataQuery
         .order("start_time", { ascending: true })
         .range(start, end)
 
@@ -269,18 +275,6 @@ export default function TownPage() {
           totalEvents={totalEvents}
           eventsPerPage={EVENTS_PER_PAGE}
         />
-
-        {/* Next Page Button */}
-        {parseInt(page) < totalPages && (
-          <div className="flex justify-center mt-4">
-            <button
-              onClick={() => handlePageChange(parseInt(page) + 1)}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-            >
-              Next Page →
-            </button>
-          </div>
-        )}
 
         {/* No events message */}
         {events.length === 0 && !loading && (
