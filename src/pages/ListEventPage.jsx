@@ -1035,12 +1035,6 @@ const ListEventPage = () => {
 
               {showVerification && (
                 <div className="mt-8 p-6 bg-blue-50 text-blue-800 rounded-lg text-center border border-blue-200">
-                  {/* Debug info */}
-                  <div className="text-xs text-gray-500 mb-2">
-                    Debug: generatedCode = "{generatedCode}", submittedEventId ={" "}
-                    {submittedEventId}, submittedEventType ={" "}
-                    {submittedEventType}
-                  </div>
                   <div className="flex items-center justify-center mb-3">
                     <svg
                       className="w-8 h-8 text-blue-500 mr-2"
@@ -1062,8 +1056,8 @@ const ListEventPage = () => {
                     enter it below to complete your event submission.
                   </p>
                   <p className="text-sm text-blue-600 mb-4">
-                    If you don't see the email, check your spam folder. The
-                    verification code is: <strong>{generatedCode}</strong>
+                    If you don't see the email, check your spam folder or
+                    contact support.
                   </p>
 
                   <div className="max-w-md mx-auto">
