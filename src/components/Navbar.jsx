@@ -22,11 +22,11 @@ export default function Navbar() {
 
   return (
     <nav className="border-b border-gray-200 w-full bg-gradient-to-b from-sky-100/80 via-blue-50/70 via-blue-50/40 to-white">
-      <div className="flex justify-between items-center py-4 px-6">
+      <div className="flex justify-between items-center py-4 px-6 relative">
         {/* Mobile menu button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+          className="lg:hidden p-2 rounded-md hover:bg-gray-100 z-10"
         >
           <svg
             className="h-6 w-6 text-gray-600"
@@ -45,9 +45,9 @@ export default function Navbar() {
           </svg>
         </button>
 
-        {/* Logo/Title - centered */}
+        {/* Logo/Title - absolutely centered */}
         <Link
-          className="text-2xl lg:text-3xl font-bold text-center flex-1 mx-auto pl-0 lg:pl-20 font-sans hover:scale-[1.02] transition-transform"
+          className="absolute left-1/2 transform -translate-x-1/2 text-2xl lg:text-3xl font-bold text-center font-sans hover:scale-[1.02] transition-transform"
           to="/"
         >
           <h1 className="text-center">
@@ -60,19 +60,13 @@ export default function Navbar() {
           </h1>
         </Link>
 
-        {/* Desktop navigation buttons */}
-        <div className="hidden lg:flex gap-3 items-center">
+        {/* Desktop navigation buttons - positioned on the right */}
+        <div className="hidden lg:flex gap-3 items-center ml-auto">
           <Link
             to="/list-event"
-            className="border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition text-gray-700"
+            className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            List a Thing
-          </Link>
-          <Link
-            to="/sponsor"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition font-semibold"
-          >
-            Become a Sponsor
+            List an Event
           </Link>
         </div>
       </div>
@@ -86,17 +80,10 @@ export default function Navbar() {
         <div className="px-4 py-2 space-y-2">
           <Link
             to="/list-event"
-            className="block border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition text-gray-700 text-center"
+            className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white px-4 py-3 rounded-lg hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 text-center font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            List a Thing
-          </Link>
-          <Link
-            to="/sponsor"
-            className="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition font-semibold text-center"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Become a Sponsor
+            List an Event
           </Link>
         </div>
         <div className="px-4 py-2 space-y-2">
