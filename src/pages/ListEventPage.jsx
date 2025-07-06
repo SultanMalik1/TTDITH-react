@@ -3,6 +3,10 @@ import { supabase } from "../lib/supabaseClient"
 
 const ListEventPage = () => {
   const [showThankYou, setShowThankYou] = useState(false)
+  const [showVerification, setShowVerification] = useState(false)
+  const [verificationCode, setVerificationCode] = useState("")
+  const [submittedEventId, setSubmittedEventId] = useState(null)
+  const [submittedEventType, setSubmittedEventType] = useState(null) // 'scraped' or 'user_submitted'
   const [selectedPromotion, setSelectedPromotion] = useState("")
   const [hasListedElsewhere, setHasListedElsewhere] = useState(null)
   const [showForm, setShowForm] = useState(false)
@@ -85,8 +89,11 @@ const ListEventPage = () => {
           "Available buckets:",
           buckets?.map((b) => b.name)
         )
+        console.error("Total buckets found:", buckets?.length || 0)
         throw new Error(
-          "Storage bucket 'pending-images' not found. Please create this bucket in your Supabase dashboard under Storage section."
+          `Storage bucket 'pending-images' not found. Available buckets: ${
+            buckets?.map((b) => b.name).join(", ") || "none"
+          }. Please create this bucket in your Supabase dashboard under Storage section.`
         )
       }
       let imageUrl = null
@@ -154,6 +161,15 @@ const ListEventPage = () => {
           status: "pending",
         }
 
+        // Generate verification code for scraped events
+        const verificationCode = generateVerificationCode()
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
+
+        // Add verification data to scraped event
+        scrapedEventData.verification_code = verificationCode
+        scrapedEventData.verification_expires_at = expiresAt.toISOString()
+        scrapedEventData.email_verified = false
+
         const { data: scrapedData, error: scrapedError } = await supabase
           .from("scraped_events")
           .insert([scrapedEventData])
@@ -161,6 +177,17 @@ const ListEventPage = () => {
         if (scrapedError) {
           throw new Error("Failed to submit event: " + scrapedError.message)
         }
+
+        // Send verification email for scraped event
+        await sendVerificationEmail(
+          formData.get("email"),
+          verificationCode,
+          "Your Event Submission" // Generic title since we don't have event title for scraped events
+        )
+
+        // Store the scraped event ID and type for verification
+        setSubmittedEventId(scrapedData[0].id)
+        setSubmittedEventType("scraped")
       } else {
         // For new events - insert into user_submitted_events table
         const eventData = {
@@ -182,7 +209,19 @@ const ListEventPage = () => {
           phone: formData.get("phone"),
           status: "pending",
           headline_type: "normal",
+          url: `user-submitted-${Date.now()}-${Math.random()
+            .toString(36)
+            .substr(2, 9)}`,
         }
+
+        // Generate verification code
+        const verificationCode = generateVerificationCode()
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
+
+        // Add verification data to event
+        eventData.verification_code = verificationCode
+        eventData.verification_expires_at = expiresAt.toISOString()
+        eventData.email_verified = false
 
         const { data, error: insertError } = await supabase
           .from("user_submitted_events")
@@ -191,21 +230,23 @@ const ListEventPage = () => {
         if (insertError) {
           throw new Error("Failed to submit event: " + insertError.message)
         }
+
+        // Send verification email
+        await sendVerificationEmail(
+          formData.get("email"),
+          verificationCode,
+          formData.get("event-title")
+        )
+
+        // Store the event ID and type for verification
+        setSubmittedEventId(data[0].id)
+        setSubmittedEventType("user_submitted")
       }
 
-      // Success - show thank you message
+      // Success - show verification page
       form.reset()
-      setShowThankYou(true)
-      setTimeout(() => {
-        const thankYouElement = document.getElementById("thank-you-message")
-        if (thankYouElement) {
-          thankYouElement.scrollIntoView({ behavior: "smooth" })
-        }
-      }, 100)
-      setTimeout(() => {
-        setShowThankYou(false)
-        resetFlow()
-      }, 5000)
+      setShowVerification(true)
+      setShowForm(false)
     } catch (error) {
       console.error("Form submission error:", error)
       setError(error.message)
@@ -227,10 +268,116 @@ const ListEventPage = () => {
     }
   }
 
+  const generateVerificationCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString()
+  }
+
+  const sendVerificationEmail = async (email, code, eventTitle) => {
+    try {
+      const response = await fetch(
+        "/.netlify/functions/send-verification-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            verificationCode: code,
+            eventTitle,
+          }),
+        }
+      )
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send verification email")
+      }
+
+      return result
+    } catch (error) {
+      console.error("Email sending error:", error)
+      throw error
+    }
+  }
+
+  const handleVerification = async () => {
+    if (verificationCode.length !== 6) {
+      setError("Please enter a 6-digit verification code")
+      return
+    }
+
+    setIsSubmitting(true)
+    setError("")
+
+    try {
+      // Determine which table to query based on event type
+      const tableName =
+        submittedEventType === "scraped"
+          ? "scraped_events"
+          : "user_submitted_events"
+
+      // Verify the code against the database
+      const { data, error } = await supabase
+        .from(tableName)
+        .select("verification_code, verification_expires_at")
+        .eq("id", submittedEventId)
+        .single()
+
+      if (error) {
+        throw new Error("Failed to verify code: " + error.message)
+      }
+
+      if (!data) {
+        throw new Error("Event not found")
+      }
+
+      // Check if code matches
+      if (data.verification_code !== verificationCode) {
+        throw new Error("Invalid verification code")
+      }
+
+      // Check if code has expired
+      if (new Date(data.verification_expires_at) < new Date()) {
+        throw new Error("Verification code has expired")
+      }
+
+      // Update the event to verified
+      const { error: updateError } = await supabase
+        .from(tableName)
+        .update({ email_verified: true })
+        .eq("id", submittedEventId)
+
+      if (updateError) {
+        throw new Error("Failed to verify event: " + updateError.message)
+      }
+
+      // Show success message
+      setShowVerification(false)
+      setShowThankYou(true)
+
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        setShowThankYou(false)
+        resetFlow()
+      }, 5000)
+    } catch (error) {
+      console.error("Verification error:", error)
+      setError(error.message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const resetFlow = () => {
     setSelectedPromotion("")
     setHasListedElsewhere(null)
     setShowForm(false)
+    setShowVerification(false)
+    setVerificationCode("")
+    setSubmittedEventId(null)
+    setSubmittedEventType(null)
     setError("")
   }
 
@@ -856,6 +1003,54 @@ const ListEventPage = () => {
                 </div>
               </form>
 
+              {showVerification && (
+                <div className="mt-8 p-6 bg-blue-50 text-blue-800 rounded-lg text-center border border-blue-200">
+                  <div className="flex items-center justify-center mb-3">
+                    <svg
+                      className="w-8 h-8 text-blue-500 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      ></path>
+                    </svg>
+                    <h3 className="text-xl font-bold">Check Your Email!</h3>
+                  </div>
+                  <p className="text-blue-700 mb-4">
+                    We've sent a verification code to your email address. Please
+                    enter it below to complete your event submission.
+                  </p>
+
+                  <div className="max-w-md mx-auto">
+                    <input
+                      type="text"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      placeholder="Enter 6-digit code"
+                      maxLength="6"
+                      className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center text-lg font-mono tracking-widest"
+                    />
+                    <button
+                      onClick={handleVerification}
+                      disabled={verificationCode.length !== 6}
+                      className="mt-4 w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Verify & Complete Submission
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-blue-600 mt-4">
+                    Didn't receive the email? Check your spam folder or contact
+                    support.
+                  </p>
+                </div>
+              )}
+
               {showThankYou && (
                 <div
                   id="thank-you-message"
@@ -880,11 +1075,13 @@ const ListEventPage = () => {
                         d="M5 13l4 4L19 7"
                       ></path>
                     </svg>
-                    <h3 className="text-xl font-bold">Thank You!</h3>
+                    <h3 className="text-xl font-bold">
+                      Event Successfully Submitted!
+                    </h3>
                   </div>
                   <p className="text-green-700">
-                    We've received your event listing request and will get back
-                    to you shortly.
+                    Your event has been verified and submitted successfully.
+                    We'll review it and get back to you shortly.
                   </p>
                 </div>
               )}
