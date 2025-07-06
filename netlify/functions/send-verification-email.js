@@ -1,6 +1,6 @@
 import { Resend } from "resend"
 
-const resend = new Resend("re_XTbmfk8t_7Je2vE3E2P8eEbpQi6akUXmt")
+const resend = new Resend("re_9eQ7USZd_P5HvQUBhY3K7zN6rdCpSmMyi")
 
 export const handler = async (event, context) => {
   console.log("Function called with method:", event.httpMethod)
@@ -27,7 +27,7 @@ export const handler = async (event, context) => {
 
     console.log("Attempting to send email to:", email)
     const { data, error } = await resend.emails.send({
-      from: "noreply@resend.dev",
+      from: "onboarding@resend.dev",
       to: [email],
       subject: "Verify Your Event Submission - Things to Do in the Hamptons",
       html: `
