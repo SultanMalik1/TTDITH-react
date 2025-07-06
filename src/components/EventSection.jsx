@@ -15,6 +15,10 @@ export default function EventSection({
   totalEvents = 0,
   eventsPerPage = 9,
 }) {
+  // Debug EventSection props
+  console.log(
+    `EventSection Debug - showPagination: ${showPagination}, currentPage: ${currentPage}, totalPages: ${totalPages}, totalEvents: ${totalEvents}`
+  )
   return (
     <div className="mb-12">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">

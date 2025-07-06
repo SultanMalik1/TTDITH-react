@@ -69,13 +69,17 @@ const TOWN_INFO = {
 }
 
 export default function TownPage() {
-  const { townSlug, page = 1 } = useParams()
+  const { townSlug, page: pathPage } = useParams()
   const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [totalEvents, setTotalEvents] = useState(0)
 
-  const today = new URLSearchParams(window.location.search).get("today")
+  // Handle both query parameter and path parameter for page
+  const queryParams = new URLSearchParams(window.location.search)
+  const queryPage = queryParams.get("page")
+  const page = parseInt(pathPage || queryPage || 1)
+  const today = queryParams.get("today")
   const townInfo = TOWN_INFO[townSlug]
   const townName = townInfo?.name || townSlug
 
@@ -123,22 +127,24 @@ export default function TownPage() {
 
   const totalPages = Math.ceil(totalEvents / EVENTS_PER_PAGE)
 
+  // Debug pagination values
+  console.log(
+    `Pagination Debug - totalEvents: ${totalEvents}, EVENTS_PER_PAGE: ${EVENTS_PER_PAGE}, totalPages: ${totalPages}, currentPage: ${page}`
+  )
+
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams()
+    params.set("page", newPage.toString())
     if (today === "true") params.set("today", "true")
-    navigate(
-      `/towns/${townSlug}/${newPage}${
-        params.toString() ? `?${params.toString()}` : ""
-      }`
-    )
+    navigate(`/towns/${townSlug}?${params.toString()}`)
   }
 
   const handleTodayFilter = () => {
-    navigate(`/towns/${townSlug}/1?today=true`)
+    navigate(`/towns/${townSlug}?page=1&today=true`)
   }
 
   const clearFilters = () => {
-    navigate(`/towns/${townSlug}/1`)
+    navigate(`/towns/${townSlug}?page=1`)
   }
 
   // Generate SEO content
@@ -257,12 +263,24 @@ export default function TownPage() {
           title=""
           events={events}
           showPagination={true}
-          currentPage={page}
+          currentPage={parseInt(page)}
           totalPages={totalPages}
           onPageChange={handlePageChange}
           totalEvents={totalEvents}
           eventsPerPage={EVENTS_PER_PAGE}
         />
+
+        {/* Next Page Button */}
+        {parseInt(page) < totalPages && (
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => handlePageChange(parseInt(page) + 1)}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            >
+              Next Page →
+            </button>
+          </div>
+        )}
 
         {/* No events message */}
         {events.length === 0 && !loading && (
@@ -305,7 +323,7 @@ export default function TownPage() {
               .map(([slug, info]) => (
                 <button
                   key={slug}
-                  onClick={() => navigate(`/towns/${slug}/1`)}
+                  onClick={() => navigate(`/towns/${slug}?page=1`)}
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all text-left"
                 >
                   <h4 className="font-semibold text-gray-900 mb-1">
