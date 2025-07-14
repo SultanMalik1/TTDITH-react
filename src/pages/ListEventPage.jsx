@@ -3,8 +3,6 @@ import { supabase } from "../lib/supabaseClient"
 
 const ListEventPage = () => {
   const [showThankYou, setShowThankYou] = useState(false)
-  const [showVerification, setShowVerification] = useState(false)
-  const [verificationCode, setVerificationCode] = useState("")
   const [generatedCode, setGeneratedCode] = useState("") // Store the generated code to display
   const [submittedEventId, setSubmittedEventId] = useState(null)
   const [submittedEventType, setSubmittedEventType] = useState(null) // 'scraped' or 'user_submitted'
@@ -175,31 +173,26 @@ const ListEventPage = () => {
         const { data: scrapedData, error: scrapedError } = await supabase
           .from("scraped_events")
           .insert([scrapedEventData])
+          .select()
 
         if (scrapedError) {
           throw new Error("Failed to submit event: " + scrapedError.message)
         }
 
         // Store the scraped event ID and type for verification
-        setSubmittedEventId(scrapedData[0].id)
+        if (scrapedData && scrapedData.length > 0) {
+          setSubmittedEventId(scrapedData[0].id)
+          console.log("Scraped event ID:", scrapedData[0].id)
+        } else {
+          console.log("No scraped data returned from insert")
+        }
         setSubmittedEventType("scraped")
 
-        // Try to send verification email for scraped event
-        console.log("Sending verification email for scraped event...")
-        console.log("Email:", formData.get("email"))
-        console.log("Code:", verificationCode)
-
-        try {
-          await sendVerificationEmail(
-            formData.get("email"),
-            verificationCode,
-            "Your Event Submission" // Generic title since we don't have event title for scraped events
-          )
-          console.log("Verification email sent successfully for scraped event")
-        } catch (emailError) {
-          console.error("Email sending failed:", emailError)
-          // Don't throw error - still show verification UI
-        }
+        // Verification code generated and stored in database
+        console.log(
+          "Verification code generated for scraped event:",
+          verificationCode
+        )
       } else {
         // For new events - insert into user_submitted_events table
         const eventData = {
@@ -239,43 +232,38 @@ const ListEventPage = () => {
         const { data, error: insertError } = await supabase
           .from("user_submitted_events")
           .insert([eventData])
+          .select()
 
         if (insertError) {
           throw new Error("Failed to submit event: " + insertError.message)
         }
 
         // Store the event ID and type for verification
-        setSubmittedEventId(data[0].id)
+        if (data && data.length > 0) {
+          setSubmittedEventId(data[0].id)
+          console.log("User submitted event ID:", data[0].id)
+        } else {
+          console.log("No user data returned from insert")
+        }
         setSubmittedEventType("user_submitted")
 
-        // Try to send verification email
-        console.log("Sending verification email for user submitted event...")
-        console.log("Email:", formData.get("email"))
-        console.log("Code:", verificationCode)
-        console.log("Title:", formData.get("event-title"))
-
-        try {
-          await sendVerificationEmail(
-            formData.get("email"),
-            verificationCode,
-            formData.get("event-title")
-          )
-          console.log(
-            "Verification email sent successfully for user submitted event"
-          )
-        } catch (emailError) {
-          console.error("Email sending failed:", emailError)
-          // Don't throw error - still show verification UI
-        }
+        // Verification code generated and stored in database
+        console.log(
+          "Verification code generated for user submitted event:",
+          verificationCode
+        )
       }
 
-      // Success - show verification page
-      console.log("Form submitted successfully, showing verification page")
+      // Success - show thank you message directly
+      console.log("Form submitted successfully, showing thank you message")
       form.reset()
-      setShowVerification(true)
+      setShowThankYou(true)
       setShowForm(false)
-      console.log("showVerification set to:", true)
+      console.log("showThankYou set to:", true)
       console.log("showForm set to:", false)
+
+      // Keep thank you message visible - don't auto-hide
+      // User can manually reset when they want to submit another event
     } catch (error) {
       console.error("Form submission error:", error)
       setError(error.message)
@@ -301,110 +289,11 @@ const ListEventPage = () => {
     return Math.floor(100000 + Math.random() * 900000).toString()
   }
 
-  const sendVerificationEmail = async (email, code, eventTitle) => {
-    try {
-      const response = await fetch(
-        "/.netlify/functions/send-verification-email",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            verificationCode: code,
-            eventTitle,
-          }),
-        }
-      )
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to send verification email")
-      }
-
-      return result
-    } catch (error) {
-      console.error("Email sending error:", error)
-      throw error
-    }
-  }
-
-  const handleVerification = async () => {
-    if (verificationCode.length !== 6) {
-      setError("Please enter a 6-digit verification code")
-      return
-    }
-
-    setIsSubmitting(true)
-    setError("")
-
-    try {
-      // Determine which table to query based on event type
-      const tableName =
-        submittedEventType === "scraped"
-          ? "scraped_events"
-          : "user_submitted_events"
-
-      // Verify the code against the database
-      const { data, error } = await supabase
-        .from(tableName)
-        .select("verification_code, verification_expires_at")
-        .eq("id", submittedEventId)
-        .single()
-
-      if (error) {
-        throw new Error("Failed to verify code: " + error.message)
-      }
-
-      if (!data) {
-        throw new Error("Event not found")
-      }
-
-      // Check if code matches
-      if (data.verification_code !== verificationCode) {
-        throw new Error("Invalid verification code")
-      }
-
-      // Check if code has expired
-      if (new Date(data.verification_expires_at) < new Date()) {
-        throw new Error("Verification code has expired")
-      }
-
-      // Update the event to verified
-      const { error: updateError } = await supabase
-        .from(tableName)
-        .update({ email_verified: true })
-        .eq("id", submittedEventId)
-
-      if (updateError) {
-        throw new Error("Failed to verify event: " + updateError.message)
-      }
-
-      // Show success message
-      setShowVerification(false)
-      setShowThankYou(true)
-
-      // Auto-hide after 5 seconds
-      setTimeout(() => {
-        setShowThankYou(false)
-        resetFlow()
-      }, 5000)
-    } catch (error) {
-      console.error("Verification error:", error)
-      setError(error.message)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   const resetFlow = () => {
+    setShowThankYou(false)
     setSelectedPromotion("")
     setHasListedElsewhere(null)
     setShowForm(false)
-    setShowVerification(false)
-    setVerificationCode("")
     setGeneratedCode("")
     setSubmittedEventId(null)
     setSubmittedEventType(null)
@@ -414,19 +303,64 @@ const ListEventPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Promote Your Thing
-          </h1>
-          <p className="text-xl text-gray-600">
-            Get your event noticed by the Hamptons community! Choose from our
-            premium promotion options or list your event for free.
-          </p>
-        </div>
+        {/* Header Section - only show when not showing thank you message */}
+        {!showThankYou && (
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Promote Your Thing
+            </h1>
+            <p className="text-xl text-gray-600">
+              Get your event noticed by the Hamptons community! Choose from our
+              premium promotion options or list your event for free.
+            </p>
+          </div>
+        )}
+
+        {/* Thank You Message - Show prominently when form is submitted */}
+        {showThankYou && (
+          <div className="text-center py-12">
+            <div
+              id="thank-you-message"
+              className="max-w-md mx-auto p-8 bg-green-50 text-green-800 rounded-2xl text-center border border-green-200 transform transition-all duration-500 ease-in-out animate-fade-in shadow-lg"
+              style={{
+                animation: "fadeIn 0.5s ease-in-out",
+                boxShadow:
+                  "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+              }}
+            >
+              <div className="flex items-center justify-center mb-4">
+                <svg
+                  className="w-12 h-12 text-green-500 mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                <h2 className="text-3xl font-bold text-green-800">
+                  Thank You!
+                </h2>
+              </div>
+              <p className="text-green-700 mb-6 text-lg">
+                Thank you, we received your form submission.
+              </p>
+              <button
+                onClick={resetFlow}
+                className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-sm hover:shadow-md font-medium"
+              >
+                Submit Another Event
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Step 1: Pricing Cards */}
-        {!selectedPromotion && (
+        {!showThankYou && !selectedPromotion && (
           <div className="space-y-8">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-semibold text-gray-800 mb-2">
@@ -594,7 +528,7 @@ const ListEventPage = () => {
         )}
 
         {/* Step 2: Event Listing Question */}
-        {selectedPromotion && hasListedElsewhere === null && (
+        {!showThankYou && selectedPromotion && hasListedElsewhere === null && (
           <div className="space-y-8">
             <div className="text-center mb-8">
               <div className="flex items-center justify-center space-x-4 mb-4">
@@ -675,7 +609,7 @@ const ListEventPage = () => {
         )}
 
         {/* Step 3: Form Section */}
-        {showForm && (
+        {!showThankYou && showForm && (
           <div className="space-y-8">
             <div className="text-center mb-8">
               <div className="flex items-center justify-center space-x-4 mb-4">
@@ -1032,93 +966,6 @@ const ListEventPage = () => {
                   </button>
                 </div>
               </form>
-
-              {showVerification && (
-                <div className="mt-8 p-6 bg-blue-50 text-blue-800 rounded-lg text-center border border-blue-200">
-                  <div className="flex items-center justify-center mb-3">
-                    <svg
-                      className="w-8 h-8 text-blue-500 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      ></path>
-                    </svg>
-                    <h3 className="text-xl font-bold">Check Your Email!</h3>
-                  </div>
-                  <p className="text-blue-700 mb-4">
-                    We've sent a verification code to your email address. Please
-                    enter it below to complete your event submission.
-                  </p>
-                  <p className="text-sm text-blue-600 mb-4">
-                    If you don't see the email, check your spam folder or
-                    contact support.
-                  </p>
-
-                  <div className="max-w-md mx-auto">
-                    <input
-                      type="text"
-                      value={verificationCode}
-                      onChange={(e) => setVerificationCode(e.target.value)}
-                      placeholder="Enter 6-digit code"
-                      maxLength="6"
-                      className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center text-lg font-mono tracking-widest"
-                    />
-                    <button
-                      onClick={handleVerification}
-                      disabled={verificationCode.length !== 6}
-                      className="mt-4 w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Verify & Complete Submission
-                    </button>
-                  </div>
-
-                  <p className="text-sm text-blue-600 mt-4">
-                    Didn't receive the email? Check your spam folder or contact
-                    support.
-                  </p>
-                </div>
-              )}
-
-              {showThankYou && (
-                <div
-                  id="thank-you-message"
-                  className="mt-8 p-6 bg-green-50 text-green-800 rounded-lg text-center border border-green-200 transform transition-all duration-500 ease-in-out animate-fade-in"
-                  style={{
-                    animation: "fadeIn 0.5s ease-in-out",
-                    boxShadow:
-                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                  }}
-                >
-                  <div className="flex items-center justify-center mb-3">
-                    <svg
-                      className="w-8 h-8 text-green-500 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      ></path>
-                    </svg>
-                    <h3 className="text-xl font-bold">
-                      Event Successfully Submitted!
-                    </h3>
-                  </div>
-                  <p className="text-green-700">
-                    Your event has been verified and submitted successfully.
-                    We'll review it and get back to you shortly.
-                  </p>
-                </div>
-              )}
 
               <style jsx>{`
                 @keyframes fadeIn {
