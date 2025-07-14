@@ -455,7 +455,7 @@ const ListEventPage = () => {
                       Main Featured Tab
                     </h4>
                     <p className="text-3xl font-bold text-blue-600">
-                      $25<span className="text-lg">/day</span>
+                      $10<span className="text-lg">/day</span>
                     </p>
                     <ul className="mt-4 space-y-2 text-gray-600">
                       <li className="flex items-center">
