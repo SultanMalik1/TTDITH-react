@@ -25,7 +25,7 @@ const RouteTracker = () => {
   React.useEffect(() => {
     // Track page views
     if (window.gtag) {
-      window.gtag("config", "G-XXXXXXXXXX", {
+      window.gtag("config", "G-6WEJG5ERYL", {
         page_path: location.pathname + location.search,
       })
     }
