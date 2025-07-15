@@ -155,7 +155,7 @@ const ListEventPage = () => {
           contact_name: formData.get("contact-name"),
           contact_email: formData.get("email"),
           contact_phone: formData.get("phone"),
-          town: formData.get("town"),
+          location: formData.get("company-name"), // Use company name as location
           category: formData.get("category"),
           status: "pending",
         }
@@ -201,7 +201,7 @@ const ListEventPage = () => {
           start_time: formData.get("start-time"),
           end_time: formData.get("end-time"),
           image_url: imageUrl,
-          town: formData.get("town"),
+          location: formData.get("company-name"), // Use company name as location
           cost: formData.get("cost"),
           address: formData.get("address"),
           category:
@@ -659,6 +659,21 @@ const ListEventPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
                       <label className="font-medium text-gray-700">
+                        Company Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="company-name"
+                        required
+                        minLength="2"
+                        maxLength="100"
+                        placeholder="e.g., Hamptons Beach Club, Local Restaurant"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
                         Upload Event Image*
                       </label>
                       <input
@@ -770,6 +785,21 @@ const ListEventPage = () => {
                         required
                         minLength="2"
                         maxLength="100"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-center">
+                      <label className="font-medium text-gray-700">
+                        Company Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="company-name"
+                        required
+                        minLength="2"
+                        maxLength="100"
+                        placeholder="e.g., Hamptons Beach Club, Local Restaurant"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
