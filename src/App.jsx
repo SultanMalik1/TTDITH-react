@@ -17,6 +17,7 @@ import FeaturedEventsPage from "./pages/FeaturedEventsPage"
 import SponsorsPage from "./sponsors/pages/SponsorsPage"
 import SponsorDetailPage from "./sponsors/pages/SponsorDetailPage"
 import TownPage from "./pages/TownPage"
+import CheckEventsPage from "./pages/CheckEventsPage"
 import SEO from "./components/SEO"
 
 // Route tracking component
@@ -25,7 +26,7 @@ const RouteTracker = () => {
   React.useEffect(() => {
     // Track page views
     if (window.gtag) {
-      window.gtag("config", "G-XXXXXXXXXX", {
+      window.gtag("config", "G-6WEJG5ERYL", {
         page_path: location.pathname + location.search,
       })
     }
@@ -83,6 +84,7 @@ function App() {
           <Route path="/sponsors/:sponsorId" element={<SponsorDetailPage />} />
           <Route path="/featured/:page" element={<FeaturedEventsPage />} />
           <Route path="/featured" element={<FeaturedEventsPage />} />
+          <Route path="/checkevents" element={<CheckEventsPage />} />
         </Routes>
         <Footer />
       </Router>
