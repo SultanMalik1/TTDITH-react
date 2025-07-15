@@ -198,8 +198,12 @@ const ListEventPage = () => {
         const eventData = {
           title: formData.get("event-title"),
           description: formData.get("event-description"),
-          start_time: formData.get("start-time"),
-          end_time: formData.get("end-time"),
+          start_time: new Date(
+            new Date(formData.get("start-time")).getTime() + 4 * 60 * 60 * 1000
+          ).toISOString(),
+          end_time: new Date(
+            new Date(formData.get("end-time")).getTime() + 4 * 60 * 60 * 1000
+          ).toISOString(),
           image_url: imageUrl,
           location: formData.get("company-name"), // Use company name as location
           cost: formData.get("cost"),
@@ -214,9 +218,11 @@ const ListEventPage = () => {
           phone: formData.get("phone"),
           status: "pending",
           headline_type: "normal",
-          url: `user-submitted-${Date.now()}-${Math.random()
-            .toString(36)
-            .substr(2, 9)}`,
+          url:
+            formData.get("registration-url") ||
+            `user-submitted-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}`,
         }
 
         // Generate verification code
