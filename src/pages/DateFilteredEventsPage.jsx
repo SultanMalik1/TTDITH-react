@@ -138,7 +138,7 @@ export default function DateFilteredEventsPage() {
               📍 Hamptons
             </span>
             <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
-              🎯 {totalEvents} events
+              🎯 {totalEvents} {totalEvents === 1 ? "event" : "events"}
             </span>
           </div>
         </div>

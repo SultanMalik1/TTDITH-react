@@ -198,12 +198,8 @@ const ListEventPage = () => {
         const eventData = {
           title: formData.get("event-title"),
           description: formData.get("event-description"),
-          start_time: new Date(
-            new Date(formData.get("start-time")).getTime() + 4 * 60 * 60 * 1000
-          ).toISOString(),
-          end_time: new Date(
-            new Date(formData.get("end-time")).getTime() + 4 * 60 * 60 * 1000
-          ).toISOString(),
+          start_time: new Date(formData.get("start-time")).toISOString(),
+          end_time: new Date(formData.get("end-time")).toISOString(),
           image_url: imageUrl,
           location: formData.get("company-name"), // Use company name as location
           cost: formData.get("cost"),

@@ -1,13 +1,19 @@
 [
   {
-    "id": "elevate-digital",
-    "name": "Elevate Digital Creations",
+    "id": "varsa-studio",
+    "name": "Varsa Studio",
     "category": "oceanside",
-    "logo": "/sponsor-logos/elevate_logo.png",
-    "shortDescription": "Custom Website Design & Digital Marketing",
-    "longDescription": "Elevate Digital Creations is your trusted website development partner, passionate about delivering innovative solutions tailored to your unique needs. With over 4 years of expertise and more than 20 websites launched, we bring your digital vision to life with precision and creativity.",
-    "website": "https://www.elevatedigitalcreations.net/"
+    "logo": "/sponsor-logos/varsa_logo.png",
+    "shortDescription": "Creative Digital Agency",
+    "longDescription": "Varsa Studio, founded in Sag Harbor, is a full-service digital agency specializing in websites, SEO, advertising, and automation. With over 5 years of experience and 20+ satisfied clients, we craft sleek, responsive websites, boost online visibility, and build custom solutions that help businesses run smarter. Our mission is to bring Hamptons-level quality to every project, blending creativity, technology, and strategy to deliver results that look beautiful and perform even better.",
+    "whySupport": "As a Hamptons-based business, we know the importance of community-driven growth. Supporting this initiative allows us to connect with other local businesses and help them thrive through effective, accessible digital solutions. By working together, we strengthen the creative and entrepreneurial spirit that makes the Hamptons unique.",
+    "services": ["Websites", "SEO", "Advertising", "Apps & Automation"],
+    "website": "https://varsastudio.com/",
+    "phone": "631-655-5962",
+    "email": "ssaldivar@varsastudio.com",
+    "address": "Sag Harbor, NY"
   },
+
   {
     "id": "wallys-home",
     "name": "Wally's Home Services",
@@ -16,11 +22,7 @@
     "shortDescription": "Handyman Services",
     "longDescription": "Wally's Home Services, operated by Rigoberto V Perez, serves the Hamptons community with reliable handyman services. Based in Sag Harbor, their team specializes in home maintenance, repairs, and improvements, delivering quality workmanship to both year-round residents and seasonal homeowners.",
     "whySupport": "As a small business owner myself, I understand the challenges of gaining visibility in our community. I'm supporting this initiative because it helps local businesses and events access quality marketing assistance at affordable rates. These opportunities are vital for small businesses like mine to thrive and connect with our neighbors.",
-    "services": [
-      "Home Repairs",
-      "Maintenance",
-      "Improvements"
-    ],
+    "services": ["Home Repairs", "Maintenance", "Improvements"],
     "website": "https://www.wallyshomeservices.net/home",
     "phone": "631-644-2374",
     "email": "",
@@ -44,11 +46,7 @@
     "longDescription": "NOUCHI PrintWorks is a custom apparel and print service based in the Hamptons, specializing in high-quality, personalized clothing and promotional materials. We cater to both individuals and businesses, offering a wide range of products from t-shirts to banners, all designed to meet your specific needs.",
     "website": "https://www.nouchiprintworks.com",
     "whySupport": "As a small business owner, I know how important it is to support local initiatives that help us grow and connect with our community. This platform provides an affordable way for small businesses like mine to reach more customers and showcase our services. By supporting this initiative, we can all thrive together in the Hamptons.",
-    "services": [
-      "Custom Apparel",
-      "Print Services",
-      "Promotional Materials"
-    ],
+    "services": ["Custom Apparel", "Print Services", "Promotional Materials"],
     "email": "printing@nouchiprintworks.com",
     "address": "Bridgehampton, NY"
   }

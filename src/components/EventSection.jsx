@@ -43,7 +43,7 @@ export default function EventSection({
         <div className="mb-4 text-sm text-gray-600">
           Showing {(currentPage - 1) * eventsPerPage + 1} to{" "}
           {Math.min(currentPage * eventsPerPage, totalEvents)} of {totalEvents}{" "}
-          events
+          {totalEvents === 1 ? "event" : "events"}
         </div>
       )}
 

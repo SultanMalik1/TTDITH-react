@@ -11,3 +11,154 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Enhanced responsive utilities for navbar */
+@layer utilities {
+  /* Custom responsive text sizes */
+  .text-responsive-xs {
+    font-size: clamp(0.75rem, 2vw, 0.875rem);
+  }
+
+  .text-responsive-sm {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+  }
+
+  .text-responsive-base {
+    font-size: clamp(1rem, 3vw, 1.125rem);
+  }
+
+  .text-responsive-lg {
+    font-size: clamp(1.125rem, 3.5vw, 1.25rem);
+  }
+
+  .text-responsive-xl {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+  }
+
+  .text-responsive-2xl {
+    font-size: clamp(1.5rem, 5vw, 1.875rem);
+  }
+
+  .text-responsive-3xl {
+    font-size: clamp(1.875rem, 6vw, 2.25rem);
+  }
+
+  /* Custom responsive spacing */
+  .p-responsive {
+    padding: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  .px-responsive {
+    padding-left: clamp(0.5rem, 2vw, 1rem);
+    padding-right: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  .py-responsive {
+    padding-top: clamp(0.5rem, 2vw, 1rem);
+    padding-bottom: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  /* Custom responsive margins */
+  .m-responsive {
+    margin: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  .mx-responsive {
+    margin-left: clamp(0.5rem, 2vw, 1rem);
+    margin-right: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  .my-responsive {
+    margin-top: clamp(0.5rem, 2vw, 1rem);
+    margin-bottom: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  /* Custom responsive widths */
+  .w-responsive {
+    width: clamp(280px, 90vw, 100%);
+  }
+
+  .max-w-responsive {
+    max-width: clamp(280px, 90vw, 100%);
+  }
+
+  /* Custom responsive heights */
+  .h-responsive {
+    height: clamp(44px, 12vw, 60px);
+  }
+
+  .min-h-responsive {
+    min-height: clamp(44px, 12vw, 60px);
+  }
+}
+
+/* Ensure proper touch targets on all devices */
+@layer base {
+  button,
+  a {
+    @apply touch-manipulation;
+  }
+
+  /* Optimize for small screens */
+  @media (max-width: 480px) {
+    button,
+    a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Optimize for very small screens (iPhone SE) */
+  @media (max-width: 375px) {
+    button,
+    a {
+      min-height: 48px;
+      min-width: 48px;
+    }
+  }
+}
+
+/* Custom scrollbar styles */
+@layer components {
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 2px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+}
+
+/* Performance optimizations */
+@layer utilities {
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-opacity {
+    will-change: opacity;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .transform-gpu {
+    transform: translateZ(0);
+  }
+}
