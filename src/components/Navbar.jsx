@@ -183,13 +183,6 @@ export default function Navbar() {
                 All Events
               </Link>
               <Link
-                to="/blog"
-                className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Editorial Blog
-              </Link>
-              <Link
                 to="/contact"
                 className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -306,12 +299,6 @@ export default function Navbar() {
             className="text-gray-700 hover:text-blue-600 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-blue-50"
           >
             All Events
-          </Link>
-          <Link
-            to="/blog"
-            className="text-gray-700 hover:text-blue-600 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-blue-50"
-          >
-            Editorial Blog
           </Link>
           <div className="relative group">
             <button
