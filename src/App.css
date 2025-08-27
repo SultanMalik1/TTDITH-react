@@ -40,3 +40,105 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Enhanced responsive navbar styles */
+@media (max-width: 640px) {
+  /* Ensure proper spacing on very small screens */
+  #root {
+    padding: 1rem;
+  }
+
+  /* Optimize touch targets for small screens */
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Ensure text remains readable on small screens */
+  .text-lg {
+    font-size: 1rem;
+  }
+
+  .text-xl {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* iPhone SE and similar small devices */
+  #root {
+    padding: 0.75rem;
+  }
+
+  /* Optimize for very small screens */
+  .text-lg {
+    font-size: 0.875rem;
+  }
+
+  .text-xl {
+    font-size: 1rem;
+  }
+}
+
+/* Ensure smooth scrolling on all devices */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimize for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch target sizes */
+  button,
+  a {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Reduce hover effects on touch devices */
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+
+  .hover\:shadow-xl:hover {
+    box-shadow: inherit;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Ensure crisp rendering on high DPI displays */
+  nav {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Landscape orientation optimizations for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Adjust spacing for landscape mode */
+  .py-3 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  /* Ensure mobile menu doesn't take full height in landscape */
+  .h-full {
+    height: 100vh;
+    max-height: 100vh;
+  }
+}
+
+/* Ensure proper z-index stacking */
+nav {
+  z-index: 9999;
+}
+
+/* Optimize animations for performance */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
