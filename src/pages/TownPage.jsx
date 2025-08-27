@@ -8,7 +8,7 @@ import Breadcrumbs from "../components/Breadcrumbs"
 
 const EVENTS_PER_PAGE = 9
 
-// Town information and descriptions
+// Town information and descriptions - Complete list matching database enums
 const TOWN_INFO = {
   "east-hampton": {
     name: "East Hampton",
@@ -65,6 +65,118 @@ const TOWN_INFO = {
       "Find events and activities in Amagansett, a charming village with beautiful beaches and a relaxed, artistic atmosphere.",
     highlights: ["Beaches", "Art Scene", "Farming", "Relaxed Vibe"],
     image: "/images/amagansett.jpg",
+  },
+  wainscott: {
+    name: "Wainscott",
+    displayName: "Wainscott",
+    description:
+      "Discover events and activities in Wainscott, a peaceful hamlet known for its beautiful beaches and relaxed atmosphere.",
+    highlights: ["Beaches", "Peaceful Setting", "Nature", "Local Charm"],
+    image: "/images/wainscott.jpg",
+  },
+  "hampton-bays": {
+    name: "Hampton Bays",
+    displayName: "Hampton Bays",
+    description:
+      "Explore events and attractions in Hampton Bays, a vibrant community with beautiful beaches and excellent recreational opportunities.",
+    highlights: ["Beaches", "Fishing", "Boating", "Local Events"],
+    image: "/images/hampton-bays.jpg",
+  },
+  sagaponack: {
+    name: "Sagaponack",
+    displayName: "Sagaponack",
+    description:
+      "Find events and activities in Sagaponack, a charming hamlet known for its beautiful beaches and agricultural heritage.",
+    highlights: ["Beaches", "Farms", "Local Charm", "Peaceful Setting"],
+    image: "/images/sagaponack.jpg",
+  },
+  westhampton: {
+    name: "Westhampton",
+    displayName: "Westhampton",
+    description:
+      "Discover events and activities in Westhampton, a vibrant community with beautiful beaches and excellent dining options.",
+    highlights: ["Beaches", "Dining", "Local Events", "Community"],
+    image: "/images/westhampton.jpg",
+  },
+  quogue: {
+    name: "Quogue",
+    displayName: "Quogue",
+    description:
+      "Explore events and attractions in Quogue, a charming village with beautiful beaches and historic charm.",
+    highlights: ["Beaches", "Historic Charm", "Local Events", "Community"],
+    image: "/images/quogue.jpg",
+  },
+  "east-quogue": {
+    name: "East Quogue",
+    displayName: "East Quogue",
+    description:
+      "Find events and activities in East Quogue, a peaceful community with beautiful natural surroundings.",
+    highlights: ["Nature", "Peaceful Setting", "Local Events", "Community"],
+    image: "/images/east-quogue.jpg",
+  },
+  "remsenburg-speonk": {
+    name: "Remsenburg-Speonk",
+    displayName: "Remsenburg-Speonk",
+    description:
+      "Discover events and activities in Remsenburg-Speonk, a charming community with beautiful natural landscapes.",
+    highlights: ["Nature", "Local Charm", "Community", "Peaceful Setting"],
+    image: "/images/remsenburg-speonk.jpg",
+  },
+  flanders: {
+    name: "Flanders",
+    displayName: "Flanders",
+    description:
+      "Explore events and attractions in Flanders, a community with beautiful natural surroundings and local charm.",
+    highlights: ["Nature", "Local Charm", "Community", "Peaceful Setting"],
+    image: "/images/flanders.jpg",
+  },
+  northampton: {
+    name: "Northampton",
+    displayName: "Northampton",
+    description:
+      "Find events and activities in Northampton, a peaceful community with beautiful natural landscapes.",
+    highlights: ["Nature", "Peaceful Setting", "Local Events", "Community"],
+    image: "/images/northampton.jpg",
+  },
+  noyack: {
+    name: "Noyack",
+    displayName: "Noyack",
+    description:
+      "Discover events and activities in Noyack, a charming community with beautiful natural surroundings.",
+    highlights: ["Nature", "Local Charm", "Community", "Peaceful Setting"],
+    image: "/images/noyack.jpg",
+  },
+  quiogue: {
+    name: "Quiogue",
+    displayName: "Quiogue",
+    description:
+      "Explore events and attractions in Quiogue, a peaceful community with beautiful natural landscapes.",
+    highlights: ["Nature", "Peaceful Setting", "Local Events", "Community"],
+    image: "/images/quiogue.jpg",
+  },
+  tuckahoe: {
+    name: "Tuckahoe",
+    displayName: "Tuckahoe",
+    description:
+      "Find events and activities in Tuckahoe, a community with beautiful natural surroundings and local charm.",
+    highlights: ["Nature", "Local Charm", "Community", "Peaceful Setting"],
+    image: "/images/tuckahoe.jpg",
+  },
+  springs: {
+    name: "Springs",
+    displayName: "Springs",
+    description:
+      "Discover events and activities in Springs, a vibrant community with artistic heritage and natural beauty.",
+    highlights: ["Art Scene", "Nature", "Local Events", "Community"],
+    image: "/images/springs.jpg",
+  },
+  "shelter-island": {
+    name: "Shelter Island",
+    displayName: "Shelter Island",
+    description:
+      "Explore events and attractions on Shelter Island, a beautiful island community with unique charm and natural beauty.",
+    highlights: ["Island Charm", "Beaches", "Nature", "Local Events"],
+    image: "/images/shelter-island.jpg",
   },
 }
 
@@ -209,54 +321,43 @@ export default function TownPage() {
         title={getSEOTitle()}
         description={getSEODescription()}
         keywords={getSEOKeywords()}
-        url={`/towns/${townSlug}`}
       />
-
       <div className="max-w-7xl mx-auto px-4 py-10">
-        {/* Breadcrumbs */}
-        <Breadcrumbs />
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Towns", href: "/" },
+            { label: townInfo.displayName, href: `/towns/${townSlug}` },
+          ]}
+        />
 
-        {/* Town Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4 text-gray-900">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Events in {townInfo.displayName}
           </h1>
+          <p className="text-lg text-gray-600 mb-6">{townInfo.description}</p>
 
-          <p className="text-lg text-gray-600 mb-6 max-w-3xl">
-            {townInfo.description}
-          </p>
-
-          {/* Town Highlights */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {townInfo.highlights.map((highlight, index) => (
-              <span
-                key={index}
-                className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+          {/* Filter buttons */}
+          <div className="flex flex-wrap gap-3 mb-6">
+            {townInfo.highlights.map((highlight) => (
+              <button
+                key={highlight}
+                className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors"
               >
                 {highlight}
-              </span>
+              </button>
             ))}
-          </div>
-
-          {/* Filter Controls */}
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            {today === "true" && (
-              <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
-                🔥 Today Only
-              </span>
-            )}
-
             <button
               onClick={handleTodayFilter}
-              className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-orange-200 transition-colors"
+              className="px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium hover:bg-orange-200 transition-colors flex items-center gap-2"
             >
-              🔥 Show Today's Events
+              <span className="text-orange-500">🔥</span>
+              Show Today's Events
             </button>
-
             {today === "true" && (
               <button
                 onClick={clearFilters}
-                className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
               >
                 Clear Filters
               </button>
@@ -264,72 +365,35 @@ export default function TownPage() {
           </div>
         </div>
 
-        {/* Events Section */}
-        <EventSection
-          title=""
-          events={events}
-          showPagination={true}
-          currentPage={parseInt(page)}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          totalEvents={totalEvents}
-          eventsPerPage={EVENTS_PER_PAGE}
-        />
-
-        {/* No events message */}
-        {events.length === 0 && !loading && (
+        {events.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🏖️</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              No events found in {townInfo.displayName}
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              No Events Found
             </h2>
             <p className="text-gray-600 mb-6">
               {today === "true"
-                ? `No events are happening today in ${townInfo.displayName}. Check out upcoming events instead!`
-                : `No events found in ${townInfo.displayName}. Try browsing all events or check other towns.`}
+                ? `No events are happening today in ${townInfo.displayName}.`
+                : `No upcoming events found in ${townInfo.displayName}.`}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => navigate("/events/1")}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-              >
-                Browse All Events
-              </button>
-              <button
-                onClick={() => navigate("/")}
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold"
-              >
-                Back to Homepage
-              </button>
-            </div>
+            <button
+              onClick={() => navigate("/")}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            >
+              Browse All Events
+            </button>
           </div>
+        ) : (
+          <EventSection
+            title={`Events in ${townInfo.displayName}`}
+            events={events}
+            showPagination={true}
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalEvents={totalEvents}
+            eventsPerPage={EVENTS_PER_PAGE}
+          />
         )}
-
-        {/* Related Towns */}
-        <div className="mt-16">
-          <h3 className="text-2xl font-bold mb-6 text-gray-900">
-            Explore Other Hamptons Towns
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Object.entries(TOWN_INFO)
-              .filter(([slug]) => slug !== townSlug)
-              .slice(0, 6)
-              .map(([slug, info]) => (
-                <button
-                  key={slug}
-                  onClick={() => navigate(`/towns/${slug}?page=1`)}
-                  className="bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all text-left"
-                >
-                  <h4 className="font-semibold text-gray-900 mb-1">
-                    {info.displayName}
-                  </h4>
-                  <p className="text-xs text-gray-600">
-                    {info.highlights.slice(0, 2).join(", ")}
-                  </p>
-                </button>
-              ))}
-          </div>
-        </div>
       </div>
     </>
   )

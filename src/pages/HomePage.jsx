@@ -198,11 +198,6 @@ const Carousel = ({
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                     {item.name}
                   </h3>
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                      {item.count} {itemType === "town" ? "events" : "events"}
-                    </span>
-                  </div>
                   {itemType === "category" && (
                     <div className="mt-3">
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -251,52 +246,48 @@ export default function HomePage() {
         .select("*")
         .gt("start_time", now)
         .order("start_time", { ascending: true })
+
       if (!error) {
-        // Filter out Library and Government events
-        const filtered = data.filter(
-          (e) => e.category !== "Library" && e.category !== "Government"
-        )
-        setEvents(filtered)
+        setEvents(data)
       }
       setLoading(false)
     }
     fetchEvents()
   }, [])
 
+  // Get today's events
+  const todaysEvents = events.filter((event) => isEventToday(event.start_time))
+
+  // Get featured events
+  const featuredEvents = events.filter((event) => event.category === "Featured")
+
+  // Group events by category
   const groupedEvents = groupEventsByCategory(events)
 
-  const handleCategoryClick = (category) => {
-    navigate(`/categories/${category}/1`)
+  const handleTownClick = (townName) => {
+    // Convert town name to slug for routing
+    const townSlug = townName.toLowerCase().replace(/\s+/g, "-")
+    navigate(`/towns/${townSlug}`)
+  }
+
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/categories/${categoryName}/1`)
   }
 
   const handleAllEventsClick = () => {
     navigate("/events/1")
   }
 
-  const handleDateSubmit = () => {
-    if (selectedDate) {
-      const formattedDate = selectedDate.toISOString().split("T")[0]
-      navigate(`/events/date/${formattedDate}`)
-    }
-  }
-
   const handleViewAllSponsors = () => {
     navigate("/sponsors")
   }
 
-  const handleTownClick = (town) => {
-    // Convert town name to slug format
-    const townSlug = town.toLowerCase().replace(/\s+/g, "-")
-    navigate(`/towns/${townSlug}?page=1`)
+  const handleDateSubmit = () => {
+    if (selectedDate) {
+      const formattedDate = selectedDate.toISOString().split("T")[0]
+      navigate(`/date-filtered?date=${formattedDate}`)
+    }
   }
-
-  if (loading) return <Loader />
-
-  // Filter featured events (adjust category as needed)
-  const featuredEvents = events.filter((e) => e.category === "Featured")
-
-  // Filter today's events
-  const todaysEvents = events.filter((e) => isEventToday(e.start_time))
 
   // Prepare town data for carousel
   const townData = HAMPTONS_TOWNS.slice(0, 15)

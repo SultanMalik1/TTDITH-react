@@ -89,7 +89,7 @@ export default function FeaturedEventsPage() {
               📍 Hamptons
             </span>
             <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
-              🎯 {totalEvents} events
+              🎯 {totalEvents} {totalEvents === 1 ? "event" : "events"}
             </span>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function FeaturedEventsPage() {
               </button>
               <button
                 onClick={() => navigate("/")}
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
               >
                 Back to Homepage
               </button>
